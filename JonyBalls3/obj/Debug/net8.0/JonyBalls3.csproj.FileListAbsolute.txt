@@ -128,3 +128,4 @@
 \\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3\obj\Debug\net8.0\JonyBalls3.pdb
 \\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3\obj\Debug\net8.0\JonyBalls3.genruntimeconfig.cache
 \\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3\obj\Debug\net8.0\ref\JonyBalls3.dll
+\\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3\obj\Debug\net8.0\JonyBalls3.sourcelink.json

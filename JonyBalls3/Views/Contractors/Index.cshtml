@@ -4,14 +4,7 @@
 }
 
 <div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-5 fw-bold" style="color: #667eea;">
-                <i class="fas fa-users me-2"></i>Каталог подрядчиков
-            </h1>
-            <p class="lead text-muted">Найдите проверенных специалистов для вашего ремонта</p>
-        </div>
-    </div>
+    <h1 class="mb-4">Каталог подрядчиков</h1>
 
     <!-- Форма поиска -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -19,22 +12,14 @@
             <form method="get" class="row g-3">
                 <div class="col-md-5">
                     <label class="form-label fw-bold">Специализация</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-tools"></i></span>
-                        <input type="text" name="specialization" class="form-control" value="@ViewBag.Specialization" placeholder="Например: отделка, сантехника, электрика...">
-                    </div>
+                    <input type="text" name="specialization" class="form-control" value="@ViewBag.Specialization" placeholder="Например: отделка, сантехника...">
                 </div>
                 <div class="col-md-5">
                     <label class="form-label fw-bold">Макс. ставка (₽/час)</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-money-bill"></i></span>
-                        <input type="number" name="maxRate" class="form-control" value="@ViewBag.MaxRate" placeholder="Введите сумму">
-                    </div>
+                    <input type="number" name="maxRate" class="form-control" value="@ViewBag.MaxRate" placeholder="Введите сумму">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-gradient w-100">
-                        <i class="fas fa-search me-2"></i>Найти
-                    </button>
+                    <button type="submit" class="btn btn-primary w-100">Найти</button>
                 </div>
             </form>
         </div>
@@ -43,14 +28,8 @@
     @if (!Model.Any())
     {
         <div class="text-center py-5">
-            <div class="display-1 text-muted mb-4">
-                <i class="fas fa-user-slash"></i>
-            </div>
-            <h3 class="mb-3">Подрядчики не найдены</h3>
-            <p class="text-muted mb-4">Попробуйте изменить параметры поиска</p>
-            <a asp-action="Index" class="btn btn-gradient">
-                <i class="fas fa-redo me-2"></i>Сбросить фильтры
-            </a>
+            <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
+            <h3>Подрядчики не найдены</h3>
         </div>
     }
     else
@@ -59,75 +38,21 @@
             @foreach (var contractor in Model)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 rounded-4 contractor-card">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
                         <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="position-relative me-3">
-                                    @if (contractor.User?.AvatarUrl != null)
-                                    {
-                                        <img src="@contractor.User.AvatarUrl" class="rounded-circle" width="70" height="70">
-                                    }
-                                    else
-                                    {
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
-                                            <i class="fas fa-user-tie fa-3x"></i>
-                                        </div>
-                                    }
-                                    @if (contractor.IsVerified)
-                                    {
-                                        <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1" title="Верифицирован">
-                                            <i class="fas fa-check-circle text-white fa-xs"></i>
-                                        </span>
-                                    }
-                                </div>
-                                <div>
-                                    <h5 class="mb-1">@contractor.CompanyName</h5>
-                                    <p class="text-muted small mb-0">@contractor.Specialization</p>
-                                </div>
-                            </div>
-
-                            <p class="text-muted small mb-3">@(contractor.Description?.Length > 100 ? contractor.Description.Substring(0, 100) + "..." : contractor.Description ?? "Нет описания")</p>
-
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-star text-warning me-2"></i>Рейтинг:</span>
-                                    <span class="fw-bold">@contractor.Rating.ToString("F1") (@contractor.ReviewsCount отзывов)</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-clock text-info me-2"></i>Опыт:</span>
-                                    <span class="fw-bold">@contractor.ExperienceYears лет</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-money-bill text-success me-2"></i>Ставка:</span>
-                                    <span class="fw-bold">@contractor.HourlyRate.ToString("N0") ₽/час</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span><i class="fas fa-circle me-2 @(contractor.Status == JonyBalls3.Models.ContractorStatus.Available ? "text-success" : "text-warning")"></i>Статус:</span>
-                                    <span class="fw-bold">
-                                        @if (contractor.Status == JonyBalls3.Models.ContractorStatus.Available)
-                                        {
-                                            <span class="text-success">Свободен</span>
-                                        }
-                                        else if (contractor.Status == JonyBalls3.Models.ContractorStatus.Busy)
-                                        {
-                                            <span class="text-warning">Занят</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-secondary">Недоступен</span>
-                                        }
-                                    </span>
-                                </div>
-                            </div>
-
+                            <h5 class="mb-1">@contractor.CompanyName</h5>
+                            <p class="text-muted small mb-2">@contractor.Specialization</p>
+                            <p class="text-muted small">Опыт: @contractor.ExperienceYears лет</p>
+                            <p class="text-muted small">Ставка: @contractor.HourlyRate.ToString("N0") ₽/час</p>
+                            <p class="text-muted small">Рейтинг: @contractor.Rating.ToString("F1")</p>
                             <div class="d-flex gap-2">
-                                <a asp-action="Details" asp-route-id="@contractor.Id" class="btn btn-outline-gradient flex-grow-1">
-                                    <i class="fas fa-user me-1"></i>Профиль
-                                </a>
+                                <a asp-action="Details" asp-route-id="@contractor.Id" class="btn btn-outline-primary flex-grow-1">Профиль</a>
                                 @if (User.Identity.IsAuthenticated)
                                 {
-                                    <button class="btn btn-gradient flex-grow-1 invite-contractor" data-id="@contractor.Id" data-name="@contractor.CompanyName">
-                                        <i class="fas fa-envelope me-1"></i>Пригласить
+                                    <button class="btn btn-primary flex-grow-1 invite-contractor"
+                                            data-id="@contractor.Id"
+                                            data-name="@contractor.CompanyName">
+                                        Пригласить
                                     </button>
                                 }
                             </div>
@@ -139,7 +64,7 @@
     }
 </div>
 
-<!-- Модальное окно для приглашения -->
+<!-- Модальное окно приглашения (с антифордж токеном!) -->
 <div class="modal fade" id="inviteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -149,6 +74,7 @@
             </div>
             <div class="modal-body">
                 <form id="inviteForm">
+                    @Html.AntiForgeryToken()   <!-- ← Этого не хватало! -->
                     <input type="hidden" name="contractorId" id="inviteContractorId">
                     <div class="mb-3">
                         <label class="form-label">Подрядчик</label>
@@ -157,7 +83,7 @@
                     <div class="mb-3">
                         <label class="form-label">Выберите проект</label>
                         <select name="projectId" class="form-select" id="projectSelect" required>
-                            <option value="">-- Выберите проект --</option>
+                            <option value="">-- Загрузка проектов --</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -168,7 +94,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-gradient" id="sendInviteBtn">Отправить приглашение</button>
+                <button type="button" class="btn btn-primary" id="sendInviteBtn">Отправить приглашение</button>
             </div>
         </div>
     </div>
@@ -177,63 +103,55 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Загрузка проектов для приглашения
+            // Загрузка проектов пользователя
             function loadProjects() {
                 $.get('/Projects/GetUserProjects')
                     .done(function(projects) {
                         var select = $('#projectSelect');
                         select.empty().append('<option value="">-- Выберите проект --</option>');
-                        
-                        if (projects.length === 0) {
-                            select.append('<option value="" disabled>У вас нет активных проектов</option>');
-                        } else {
+                        if (projects && projects.length > 0) {
                             projects.forEach(function(p) {
                                 select.append('<option value="' + p.id + '">' + p.name + '</option>');
                             });
+                        } else {
+                            select.append('<option value="" disabled>У вас нет проектов</option>');
                         }
+                    })
+                    .fail(function() {
+                        $('#projectSelect').empty().append('<option value="">Ошибка загрузки проектов</option>');
                     });
             }
 
-            // Открытие модального окна приглашения
+            // Открытие модального окна
             $('.invite-contractor').click(function() {
                 var id = $(this).data('id');
                 var name = $(this).data('name');
-                
                 $('#inviteContractorId').val(id);
                 $('#inviteContractorName').val(name);
                 loadProjects();
-                
                 $('#inviteModal').modal('show');
             });
 
             // Отправка приглашения
             $('#sendInviteBtn').click(function() {
-                var formData = $('#inviteForm').serialize();
-                
-                $.post('/Invitations/Create', formData)
-                    .done(function(response) {
+                var formData = $('#inviteForm').serialize(); // теперь включает токен
+                $.ajax({
+                    url: '/Invitations/Create',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
                         if (response.success) {
                             toastr.success(response.message);
                             $('#inviteModal').modal('hide');
                         } else {
                             toastr.error(response.message);
                         }
-                    })
-                    .fail(function() {
-                        toastr.error('Ошибка при отправке приглашения');
-                    });
+                    },
+                    error: function(xhr) {
+                        toastr.error('Ошибка при отправке приглашения: ' + xhr.responseText);
+                    }
+                });
             });
         });
     </script>
 }
-
-<style>
-    .contractor-card {
-        transition: all 0.3s;
-    }
-    
-    .contractor-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2) !important;
-    }
-</style>

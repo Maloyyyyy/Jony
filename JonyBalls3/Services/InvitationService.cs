@@ -23,21 +23,19 @@ namespace JonyBalls3.Services
             {
                 _logger.LogInformation($"Создание приглашения: projectId={projectId}, contractorId={contractorId}, userId={userId}");
 
-                // Проверяем существование проекта
                 var project = await _context.Projects
                     .FirstOrDefaultAsync(p => p.Id == projectId);
-                
+
                 if (project == null)
                 {
                     _logger.LogError($"Проект с ID {projectId} не найден");
                     throw new Exception("Проект не найден");
                 }
 
-                // Проверяем существование подрядчика
                 var contractor = await _context.ContractorProfiles
                     .Include(c => c.User)
                     .FirstOrDefaultAsync(c => c.Id == contractorId);
-                
+
                 if (contractor == null)
                 {
                     _logger.LogError($"Подрядчик с ID {contractorId} не найден");
@@ -63,7 +61,6 @@ namespace JonyBalls3.Services
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Приглашение сохранено с ID {invitation.Id}");
 
-                // Создаем системное сообщение в чате
                 try
                 {
                     var chatMessage = new ChatMessage
@@ -81,7 +78,6 @@ namespace JonyBalls3.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Ошибка при создании системного сообщения");
-                    // Не прерываем выполнение, если не удалось создать сообщение
                 }
 
                 return invitation;
@@ -269,8 +265,8 @@ namespace JonyBalls3.Services
             try
             {
                 return await _context.Invitations
-                    .AnyAsync(i => i.ProjectId == projectId && 
-                                   i.ContractorId == contractorId && 
+                    .AnyAsync(i => i.ProjectId == projectId &&
+                                   i.ContractorId == contractorId &&
                                    i.Status == InvitationStatus.Pending);
             }
             catch (Exception ex)

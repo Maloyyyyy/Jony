@@ -39,45 +39,48 @@ namespace JonyBalls3.Controllers
             return View(invitations);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int projectId, int contractorId, string message)
+       [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(int projectId, int contractorId, string message)
+{
+    try
+    {
+        _logger.LogInformation($"Create called with projectId={projectId}, contractorId={contractorId}, message={message}");
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _logger.LogInformation($"User ID: {userId}");
+
+        var project = await _projectService.GetProjectByIdAsync(projectId);
+        if (project == null)
         {
-            try
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var project = await _projectService.GetProjectByIdAsync(projectId);
-
-                if (project == null)
-                {
-                    return Json(new { success = false, message = "Проект не найден" });
-                }
-
-                if (project.UserId != userId)
-                {
-                    return Json(new { success = false, message = "У вас нет прав для этого действия" });
-                }
-
-                var exists = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
-                if (exists)
-                {
-                    return Json(new { success = false, message = "Приглашение уже отправлено" });
-                }
-
-                var invitation = await _invitationService.CreateInvitationAsync(projectId, contractorId, message, userId);
-                
-                return Json(new { 
-                    success = true, 
-                    message = "Приглашение отправлено",
-                    invitationId = invitation.Id
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при создании приглашения");
-                return Json(new { success = false, message = "Ошибка при отправке приглашения" });
-            }
+            _logger.LogWarning("Project not found");
+            return Json(new { success = false, message = "Проект не найден" });
         }
+
+        if (project.UserId != userId)
+        {
+            _logger.LogWarning($"User {userId} is not owner of project {projectId}");
+            return Json(new { success = false, message = "У вас нет прав для этого действия" });
+        }
+
+        var exists = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
+        if (exists)
+        {
+            _logger.LogWarning("Invitation already exists");
+            return Json(new { success = false, message = "Приглашение уже отправлено" });
+        }
+
+        var invitation = await _invitationService.CreateInvitationAsync(projectId, contractorId, message, userId);
+        _logger.LogInformation($"Invitation created with id {invitation.Id}");
+
+        return Json(new { success = true, message = "Приглашение отправлено", invitationId = invitation.Id });
+    }
+   catch (Exception ex)
+{
+    _logger.LogError(ex, "Ошибка при создании приглашения");
+    return Json(new { success = false, message = "Ошибка: " + ex.Message });
+}
+}
 
         [HttpPost]
         [ValidateAntiForgeryToken]

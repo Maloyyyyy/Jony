@@ -1,0 +1,52 @@
+@model List<JonyBalls3.Models.Invitation>
+@{
+    ViewData["Title"] = "Мои приглашения";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Мои приглашения</h1>
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-envelope-open fa-4x text-muted mb-3"></i>
+            <h3>Нет новых приглашений</h3>
+        </div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var inv in Model.OrderByDescending(i => i.SentAt))
+            {
+                <div class="list-group-item">
+                    <h5>Проект: @inv.Project?.Name</h5>
+                    <p>Заказчик: @inv.Project?.User?.FullName</p>
+                    <p>Сообщение: @inv.Message</p>
+                    @if (inv.Status == JonyBalls3.Models.InvitationStatus.Pending)
+                    {
+                        <button class="btn btn-success accept-invite" data-id="@inv.Id">Принять</button>
+                        <button class="btn btn-danger reject-invite" data-id="@inv.Id">Отклонить</button>
+                    }
+                    else if (inv.Status == JonyBalls3.Models.InvitationStatus.Accepted)
+                    {
+                        <span class="badge bg-success">Принято</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $('.accept-invite').click(function() {
+            var id = $(this).data('id');
+            $.post('/Invitations/Accept/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
+                .done(function(res) { if(res.success) location.reload(); });
+        });
+        $('.reject-invite').click(function() {
+            var id = $(this).data('id');
+            $.post('/Invitations/Reject/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
+                .done(function(res) { if(res.success) location.reload(); });
+        });
+    </script>
+}

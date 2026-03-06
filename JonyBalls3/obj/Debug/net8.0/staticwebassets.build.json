@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "C/7jp4+hcVfHOH/xnXrSHH3NmASca7mCZeAhMTGpELk=",
+  "Hash": "ey+XOD+3XMAawNJokWtQCRteOxMLYIYR1kNgVXLZHYI=",
   "Source": "JonyBalls3",
   "BasePath": "_content/JonyBalls3",
   "Mode": "Default",
@@ -1269,6 +1269,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Identity": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\avatars\\066a10a5-d12b-459a-bedc-94dd0d9898ab.jpg",
+      "SourceId": "JonyBalls3",
+      "SourceType": "Discovered",
+      "ContentRoot": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\",
+      "BasePath": "_content/JonyBalls3",
+      "RelativePath": "uploads/avatars/066a10a5-d12b-459a-bedc-94dd0d9898ab.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\avatars\\066a10a5-d12b-459a-bedc-94dd0d9898ab.jpg"
     },
     {
       "Identity": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\avatars\\bbe06ed7-0659-4203-af18-b87476aeea5d.jpg",

@@ -15,7 +15,7 @@
                 <h5 class="mb-0">@project.Name - @otherUser?.FullName</h5>
             </div>
         </div>
-        
+
         <div class="card-body overflow-auto" id="messagesContainer" style="height: calc(100% - 130px);">
             @foreach (var msg in Model)
             {
@@ -29,7 +29,7 @@
                 </div>
             }
         </div>
-        
+
         <div class="card-footer bg-white">
             <form id="messageForm" class="d-flex">
                 <input type="text" id="messageInput" class="form-control me-2" placeholder="Введите сообщение...">
@@ -43,31 +43,31 @@
     const projectId = @project.Id;
     const currentUserId = '@currentUserId';
     const container = document.getElementById('messagesContainer');
-    
+
     function scrollToBottom() {
         container.scrollTop = container.scrollHeight;
     }
-    
+
     function loadMessages() {
         fetch(`/Chat/GetMessages?projectId=${projectId}`)
             .then(r => r.json())
             .then(messages => {
-                // Здесь будет обновление сообщений
+                // здесь можно добавить динамическое обновление
                 scrollToBottom();
             });
     }
-    
+
     document.getElementById('messageForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
-        
+
         if (!message) return;
-        
+
         fetch('/Chat/SendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ projectId, message })
+            body: JSON.stringify({ projectId: projectId, message: message })
         })
         .then(r => r.json())
         .then(data => {
@@ -76,7 +76,7 @@
             }
         });
     });
-    
+
     scrollToBottom();
     setInterval(loadMessages, 3000);
 </script>
