@@ -1,0 +1,82 @@
+﻿@using System.Security.Claims
+@model List<JonyBalls3.Models.ChatMessage>
+@{
+    ViewData["Title"] = "Чат";
+    var project = ViewBag.Project as JonyBalls3.Models.Project;
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var otherUser = project.UserId == currentUserId ? project.Contractor?.User : project.User;
+}
+
+<div class="container py-4" style="height: 80vh;">
+    <div class="card h-100">
+        <div class="card-header bg-white">
+            <div class="d-flex align-items-center">
+                <a href="/Chat" class="btn btn-sm btn-outline-secondary me-3">←</a>
+                <h5 class="mb-0">@project.Name - @otherUser?.FullName</h5>
+            </div>
+        </div>
+        
+        <div class="card-body overflow-auto" id="messagesContainer" style="height: calc(100% - 130px);">
+            @foreach (var msg in Model)
+            {
+                <div class="mb-3 @(msg.SenderId == currentUserId ? "text-end" : "")">
+                    <div class="d-inline-block p-3 rounded-3 @(msg.SenderId == currentUserId ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;">
+                        @msg.Message
+                        <div class="small @(msg.SenderId == currentUserId ? "text-white-50" : "text-muted")">
+                            @msg.SentAt.ToString("HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="card-footer bg-white">
+            <form id="messageForm" class="d-flex">
+                <input type="text" id="messageInput" class="form-control me-2" placeholder="Введите сообщение...">
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const projectId = @project.Id;
+    const currentUserId = '@currentUserId';
+    const container = document.getElementById('messagesContainer');
+    
+    function scrollToBottom() {
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function loadMessages() {
+        fetch(`/Chat/GetMessages?projectId=${projectId}`)
+            .then(r => r.json())
+            .then(messages => {
+                // Здесь будет обновление сообщений
+                scrollToBottom();
+            });
+    }
+    
+    document.getElementById('messageForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        fetch('/Chat/SendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectId, message })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    });
+    
+    scrollToBottom();
+    setInterval(loadMessages, 3000);
+</script>

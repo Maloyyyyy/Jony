@@ -1,0 +1,148 @@
+@model IEnumerable<JonyBalls3.Models.ContractorProfile>
+@{
+    ViewData["Title"] = "Поиск подрядчика";
+    var projectId = ViewBag.ProjectId;
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold" style="color: #667eea;">
+                <i class="fas fa-search me-2"></i>Поиск подрядчика для проекта
+            </h1>
+            <a asp-action="Details" asp-route-id="@projectId" class="btn btn-outline-gradient">
+                <i class="fas fa-arrow-left me-2"></i>Вернуться к проекту
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
+            <h3>Подрядчики не найдены</h3>
+            <p class="text-muted">Попробуйте изменить параметры поиска</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var contractor in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    @if (contractor.User?.AvatarUrl != null)
+                                    {
+                                        <img src="@contractor.User.AvatarUrl" class="rounded-circle" width="60" height="60">
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:60px;height:60px;">
+                                            <i class="fas fa-user-tie fa-2x"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">@contractor.CompanyName</h5>
+                                    <p class="text-muted small mb-0">@contractor.Specialization</p>
+                                </div>
+                            </div>
+
+                            <p class="text-muted small mb-3">@(contractor.Description?.Length > 100 ? contractor.Description.Substring(0, 100) + "..." : contractor.Description ?? "Нет описания")</p>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-star text-warning me-2"></i>Рейтинг:</span>
+                                    <span class="fw-bold">@contractor.Rating.ToString("F1")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-clock text-info me-2"></i>Опыт:</span>
+                                    <span class="fw-bold">@contractor.ExperienceYears лет</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-money-bill text-success me-2"></i>Ставка:</span>
+                                    <span class="fw-bold">@contractor.HourlyRate.ToString("N0") ₽/час</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-gradient w-100 invite-contractor-btn" 
+                                    data-contractor-id="@contractor.Id" 
+                                    data-contractor-name="@contractor.CompanyName"
+                                    data-project-id="@projectId">
+                                <i class="fas fa-envelope me-2"></i>Пригласить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Модальное окно для приглашения -->
+<div class="modal fade" id="inviteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Приглашение подрядчика</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="inviteForm">
+                    <input type="hidden" name="projectId" id="inviteProjectId">
+                    <input type="hidden" name="contractorId" id="inviteContractorId">
+                    <div class="mb-3">
+                        <label class="form-label">Подрядчик</label>
+                        <input type="text" class="form-control" id="inviteContractorName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Сообщение подрядчику</label>
+                        <textarea name="message" class="form-control" rows="4" placeholder="Опишите, что нужно сделать, сроки, бюджет..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-gradient" id="sendInviteBtn">Отправить приглашение</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.invite-contractor-btn').click(function() {
+                var contractorId = $(this).data('contractor-id');
+                var contractorName = $(this).data('contractor-name');
+                var projectId = $(this).data('project-id');
+                
+                $('#inviteProjectId').val(projectId);
+                $('#inviteContractorId').val(contractorId);
+                $('#inviteContractorName').val(contractorName);
+                
+                $('#inviteModal').modal('show');
+            });
+
+            $('#sendInviteBtn').click(function() {
+                var formData = $('#inviteForm').serialize();
+                
+                $.post('/Projects/InviteContractor', formData)
+                    .done(function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $('#inviteModal').modal('hide');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    })
+                    .fail(function() {
+                        toastr.error('Ошибка при отправке приглашения');
+                    });
+            });
+        });
+    </script>
+}

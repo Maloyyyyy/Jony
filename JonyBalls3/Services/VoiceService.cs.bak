@@ -1,0 +1,67 @@
+﻿using System.Text;
+using System.Text.Json;
+
+namespace JonyBalls3.Services
+{
+    public class VoiceService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<VoiceService> _logger;
+
+        public VoiceService(HttpClient httpClient, ILogger<VoiceService> logger)
+        {
+            _httpClient = httpClient;
+            _logger = logger;
+        }
+
+        public async Task<byte[]> SynthesizeSpeechAsync(string text, string voice = "ru-RU-DariyaNeural")
+        {
+            try
+            {
+                // Используем бесплатный API для синтеза речи
+                var request = new
+                {
+                    text = text,
+                    voice = voice,
+                    speed = 1.0,
+                    pitch = 1.0
+                };
+
+                var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+                
+                // Отправляем запрос к бесплатному API синтеза речи
+                var response = await _httpClient.PostAsync("https://api.voicerss.org/?key=YOUR_API_KEY&hl=ru-ru&src=" + Uri.EscapeDataString(text), null);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsByteArrayAsync();
+                }
+                
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при синтезе речи");
+                return null;
+            }
+        }
+
+        // Метод для получения текста для озвучки
+        public string GetPrivacyPolicyText()
+        {
+            return @"Здравствуйте! Я расскажу вам о политике конфиденциальности платформы JonyBalls3.
+
+                    Мы собираем следующую информацию: ваше имя, email, телефон, данные о проектах ремонта.
+                    
+                    Ваши данные используются для: предоставления услуг ремонта, связи с подрядчиками, улучшения качества сервиса.
+                    
+                    Мы не передаем ваши данные третьим лицам без вашего согласия.
+                    
+                    Вы можете в любой момент запросить удаление ваших данных.
+                    
+                    Для защиты информации мы используем современные методы шифрования.
+                    
+                    Спасибо за использование нашего сервиса!";
+        }
+    }
+}

@@ -1,0 +1,111 @@
+﻿@model JonyBalls3.Models.ProjectViewModel
+@{
+    ViewData["Title"] = "Создание проекта";
+    var fromCalculator = ViewBag.FromCalculator ?? false;
+    var calculatedTotal = ViewBag.CalculatedTotal ?? 0;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="text-center fw-bold" style="color: #667eea;">
+                        <i class="fas fa-plus-circle me-2"></i>Создание нового проекта
+                    </h2>
+                    @if (fromCalculator)
+                    {
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-calculator me-2"></i>
+                            Проект создается на основе расчета. Примерная стоимость: <strong>@calculatedTotal.ToString("N0") ₽</strong>
+                        </div>
+                    }
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Например: Ремонт ванной комнаты" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Опишите, что планируете сделать..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Area" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-ruler"></i></span>
+                                    <input asp-for="Area" class="form-control" />
+                                </div>
+                                <span asp-validation-for="Area" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="RepairType" class="form-label fw-bold"></label>
+                                <select asp-for="RepairType" class="form-select">
+                                    <option value="Косметический">Косметический</option>
+                                    <option value="Капитальный">Капитальный</option>
+                                    <option value="Дизайнерский">Дизайнерский</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Budget" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₽</span>
+                                    <input asp-for="Budget" class="form-control" value="@(fromCalculator ? calculatedTotal : 0)" />
+                                </div>
+                                <span asp-validation-for="Budget" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Status" class="form-label fw-bold"></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Планирование">Планирование</option>
+                                    <option value="Активный">Активный</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label fw-bold"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label fw-bold"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="FromCalculator" value="@fromCalculator" />
+                        <input type="hidden" asp-for="CalculatedTotal" value="@calculatedTotal" />
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-save me-2"></i>Создать проект
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-gradient">
+                                <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

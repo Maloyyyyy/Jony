@@ -1,0 +1,55 @@
+﻿@model JonyBalls3.Models.User
+@{
+    ViewData["Title"] = "Редактирование профиля";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white">
+                    <h4>Редактирование профиля</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Email" />
+                        <input type="hidden" asp-for="AvatarUrl" />
+
+                        <div class="mb-3">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Телефон</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Location" class="form-label">Город</label>
+                            <input asp-for="Location" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="BirthDate" class="form-label">Дата рождения</label>
+                            <input asp-for="BirthDate" type="date" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label">О себе</label>
+                            <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Фото профиля</label>
+                            <input type="file" name="avatarFile" class="form-control" accept="image/*" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

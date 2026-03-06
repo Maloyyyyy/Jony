@@ -1,0 +1,168 @@
+﻿@model JonyBalls3.Models.Calculator.CalculationRequest
+@{
+    ViewData["Title"] = "Калькулятор ремонта";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h1 class="display-5 fw-bold" style="color: #667eea;">
+                <i class="fas fa-calculator me-2"></i>Калькулятор стоимости ремонта
+            </h1>
+            <p class="lead text-muted">Рассчитайте точную стоимость ремонта с учетом всех деталей</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h4 class="mb-0"><i class="fas fa-sliders-h me-2" style="color: #667eea;"></i>Параметры ремонта</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Calculate" method="post" id="calculatorForm">
+                        <!-- Основные параметры -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Площадь помещения (м²)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-ruler"></i></span>
+                                    <input asp-for="Area" type="number" min="1" max="1000" step="1" class="form-control" />
+                                </div>
+                                <span asp-validation-for="Area" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Количество комнат</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+                                    <input asp-for="RoomCount" type="number" min="1" max="20" step="1" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Тип ремонта и качество -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Тип ремонта</label>
+                                <select asp-for="RepairType" class="form-select">
+                                    <option value="Косметический">Косметический</option>
+                                    <option value="Капитальный">Капитальный</option>
+                                    <option value="Дизайнерский">Дизайнерский</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Качество материалов</label>
+                                <select asp-for="MaterialQuality" class="form-select">
+                                    <option value="Эконом">Эконом</option>
+                                    <option value="Среднее" selected>Среднее</option>
+                                    <option value="Премиум">Премиум</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Виды работ -->
+                        <h5 class="mb-3" style="color: #667eea;">Виды работ</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeWalls" class="form-check-input" />
+                                    <label asp-for="IncludeWalls" class="form-check-label">Стены</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeFloor" class="form-check-input" />
+                                    <label asp-for="IncludeFloor" class="form-check-label">Пол</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeCeiling" class="form-check-input" />
+                                    <label asp-for="IncludeCeiling" class="form-check-label">Потолок</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeElectric" class="form-check-input" />
+                                    <label asp-for="IncludeElectric" class="form-check-label">Электрика</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludePlumbing" class="form-check-input" />
+                                    <label asp-for="IncludePlumbing" class="form-check-label">Сантехника</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Дополнительно -->
+                        <h5 class="mb-3" style="color: #667eea;">Дополнительно</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeDelivery" class="form-check-input" />
+                                    <label asp-for="IncludeDelivery" class="form-check-label">Доставка материалов</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2">
+                                    <input asp-for="IncludeTools" class="form-check-input" />
+                                    <label asp-for="IncludeTools" class="form-check-label">Аренда инструментов</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-calculator me-2"></i>Рассчитать стоимость
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Подсказки и информация -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2" style="color: #667eea;"></i>Средние цены за м²</h5>
+                </div>
+                <div class="card-body p-4">
+                    <table class="table table-sm">
+                        <tr>
+                            <td>Косметический</td>
+                            <td class="text-end fw-bold">5 000 - 8 000 ₽</td>
+                        </tr>
+                        <tr>
+                            <td>Капитальный</td>
+                            <td class="text-end fw-bold">10 000 - 15 000 ₽</td>
+                        </tr>
+                        <tr>
+                            <td>Дизайнерский</td>
+                            <td class="text-end fw-bold">15 000 - 25 000 ₽</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2" style="color: #667eea;"></i>Советы</h5>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i>Учитывайте сезонные скидки на материалы</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i>Заказывайте материалы с запасом 10-15%</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i>Получите несколько предложений от подрядчиков</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i>Проверяйте сертификаты на материалы</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

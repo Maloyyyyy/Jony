@@ -1,0 +1,317 @@
+{
+  "Files": [
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\JonyBalls3.bundle.scp.css",
+      "PackagePath": "staticwebassets\\JonyBalls3.bundle.scp.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\css\\assistant.css",
+      "PackagePath": "staticwebassets\\css\\assistant.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\css\\speech.css",
+      "PackagePath": "staticwebassets\\css\\speech.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\js\\assistant.js",
+      "PackagePath": "staticwebassets\\js\\assistant.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\js\\speech.js",
+      "PackagePath": "staticwebassets\\js\\speech.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\LICENSE",
+      "PackagePath": "staticwebassets\\lib\\bootstrap"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\LICENSE.md"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery\\LICENSE.txt"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery\\dist\\jquery.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.js"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\avatars\\bbe06ed7-0659-4203-af18-b87476aeea5d.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\bbe06ed7-0659-4203-af18-b87476aeea5d.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\0f48c31a-49b7-44cc-8aab-b062ff53a305.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\0f48c31a-49b7-44cc-8aab-b062ff53a305.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\2769a92e-1c83-4cce-933e-3a3188b411a2.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\2769a92e-1c83-4cce-933e-3a3188b411a2.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\45ca2b0b-e113-4a79-9401-05ec35da531b.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\45ca2b0b-e113-4a79-9401-05ec35da531b.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\57904746-88df-4ff8-a7cb-fc47d9679224.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\57904746-88df-4ff8-a7cb-fc47d9679224.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\69983be7-cfcd-4d96-993b-1720074d675d.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\69983be7-cfcd-4d96-993b-1720074d675d.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\8d88a246-03b6-45f7-9cb2-71ef12f6aa72.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\8d88a246-03b6-45f7-9cb2-71ef12f6aa72.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\uploads\\portfolio\\f30fcfa0-08f2-4898-9555-10d48f645479.jpg",
+      "PackagePath": "staticwebassets\\uploads\\portfolio\\f30fcfa0-08f2-4898-9555-10d48f645479.jpg"
+    },
+    {
+      "Id": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\wwwroot\\videos\\privacy.mp4",
+      "PackagePath": "staticwebassets\\videos\\privacy.mp4"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.JonyBalls3.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.JonyBalls3.props",
+      "PackagePath": "build\\JonyBalls3.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.JonyBalls3.props",
+      "PackagePath": "buildMultiTargeting\\JonyBalls3.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.JonyBalls3.props",
+      "PackagePath": "buildTransitive\\JonyBalls3.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,202 @@
+﻿@model JonyBalls3.Models.Project
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container py-4">
+    <!-- Шапка проекта -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold" style="color: #667eea;">
+                <i class="fas fa-project-diagram me-2"></i>@Model.Name
+            </h1>
+            <p class="lead text-muted">@Model.Description</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge @(Model.Status == JonyBalls3.Models.ProjectStatus.Completed ? "badge-success" : 
+                Model.Status == JonyBalls3.Models.ProjectStatus.Active ? "badge-info" : "badge-warning") fs-6">
+                @Model.Status
+            </span>
+        </div>
+    </div>
+
+    <!-- Статистика проекта -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card-modern card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Площадь</h6>
+                    <h3 class="fw-bold text-primary mb-0">@Model.Area м²</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-modern card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Бюджет</h6>
+                    <h3 class="fw-bold text-success mb-0">@Model.Budget.ToString("N0") ₽</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-modern card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Потрачено</h6>
+                    <h3 class="fw-bold text-warning mb-0">@Model.Spent.ToString("N0") ₽</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-modern card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Осталось</h6>
+                    <h3 class="fw-bold text-info mb-0">@Model.Remaining.ToString("N0") ₽</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Прогресс -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3"><i class="fas fa-chart-line me-2" style="color: #667eea;"></i>Общий прогресс</h5>
+            <div class="progress mb-2" style="height: 25px;">
+                <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: @Model.Progress%;">
+                    @Model.Progress%
+                </div>
+            </div>
+            <p class="text-muted mb-0">Начало: @(Model.StartDate?.ToString("dd.MM.yyyy") ?? "не указано") | Окончание: @(Model.EndDate?.ToString("dd.MM.yyyy") ?? "не указано")</p>
+        </div>
+    </div>
+
+    <!-- Подрядчик -->
+    @if (Model.Contractor != null)
+    {
+        <div class="card shadow-lg border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-2"><i class="fas fa-user-tie me-2" style="color: #667eea;"></i>Подрядчик</h5>
+                        <p class="mb-1 fw-bold">@Model.Contractor.CompanyName</p>
+                        <p class="text-muted mb-0">@Model.Contractor.Specialization</p>
+                    </div>
+                    <div>
+                        <span class="badge @(Model.Contractor.Status == JonyBalls3.Models.ContractorStatus.Available ? "badge-success" : 
+                            Model.Contractor.Status == JonyBalls3.Models.ContractorStatus.Busy ? "badge-warning" : "badge-secondary") me-2">
+                            @Model.Contractor.Status
+                        </span>
+                        <a asp-controller="Chat" asp-action="Project" asp-route-id="@Model.Id" class="btn btn-sm btn-gradient">
+                            <i class="fas fa-comment me-1"></i>Чат
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-lg border-0 rounded-4 mb-4">
+            <div class="card-body p-4 text-center">
+                <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                <h5>Нет подрядчика</h5>
+                <p class="text-muted mb-3">Наймите подрядчика для выполнения работ</p>
+                <a asp-action="FindContractor" asp-route-id="@Model.Id" class="btn btn-gradient">
+                    <i class="fas fa-search me-2"></i>Найти подрядчика
+                </a>
+            </div>
+        </div>
+    }
+
+    <!-- Этапы работ -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2" style="color: #667eea;"></i>Этапы работ</h5>
+                <button class="btn btn-sm btn-outline-gradient" data-bs-toggle="modal" data-bs-target="#addStageModal">
+                    <i class="fas fa-plus me-1"></i>Добавить этап
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            @if (!Model.Stages.Any())
+            {
+                <p class="text-muted text-center mb-0">Нет этапов работ</p>
+            }
+            else
+            {
+                @foreach (var stage in Model.Stages.OrderBy(s => s.Order))
+                {
+                    <div class="border rounded-3 p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="mb-1 fw-bold">@stage.Name</h6>
+                                <p class="text-muted small mb-1">@stage.Description</p>
+                            </div>
+                            <span class="badge @(stage.Status == JonyBalls3.Models.StageStatus.Completed ? "badge-success" : 
+                                stage.Status == JonyBalls3.Models.StageStatus.InProgress ? "badge-info" : "badge-secondary")">
+                                @stage.Status
+                            </span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4">
+                                <span class="text-muted">Бюджет:</span> <span class="fw-bold">@stage.Budget.ToString("N0") ₽</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted">Потрачено:</span> <span class="fw-bold">@stage.Spent.ToString("N0") ₽</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted">Прогресс:</span> <span class="fw-bold">@stage.Progress%</span>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 5px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @stage.Progress%;"></div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="d-flex gap-2 justify-content-end">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gradient">
+            <i class="fas fa-edit me-2"></i>Редактировать
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+            <i class="fas fa-trash me-2"></i>Удалить
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Назад
+        </a>
+    </div>
+</div>
+
+<!-- Модальное окно добавления этапа -->
+<div class="modal fade" id="addStageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавление этапа работ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="AddStage" method="post">
+                    <input type="hidden" name="ProjectId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Название этапа</label>
+                        <input type="text" name="Name" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Бюджет этапа (руб.)</label>
+                        <input type="number" name="Budget" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-gradient w-100">Добавить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

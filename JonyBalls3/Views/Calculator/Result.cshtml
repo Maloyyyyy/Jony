@@ -1,0 +1,120 @@
+﻿@model JonyBalls3.Models.Calculator.CalculationResult
+@{
+    ViewData["Title"] = "Результат расчета";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h1 class="display-5 fw-bold" style="color: #667eea;">
+                <i class="fas fa-check-circle me-2"></i>Результат расчета
+            </h1>
+            <p class="lead text-muted">Детальная смета вашего ремонта</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h4 class="mb-0"><i class="fas fa-file-invoice me-2" style="color: #667eea;"></i>Детализация расходов</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Статья расходов</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Breakdown)
+                                {
+                                    <tr>
+                                        <td>@item.Key</td>
+                                        <td class="text-end fw-bold">@item.Value.ToString("N0") ₽</td>
+                                    </tr>
+                                }
+                                <tr class="table-primary">
+                                    <td class="fw-bold">ИТОГО</td>
+                                    <td class="text-end fw-bold fs-5">@Model.TotalCost.ToString("N0") ₽</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2" style="color: #667eea;"></i>Распределение расходов</h5>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="costChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <h6 class="text-muted mb-3">Общая стоимость</h6>
+                    <h2 class="display-4 fw-bold" style="color: #667eea;">@Model.TotalCost.ToString("N0") ₽</h2>
+                    <p class="text-muted mb-0">за @Model.Area м²</p>
+                    <p class="text-muted">Тип: @Model.RepairType, качество: @Model.MaterialQuality</p>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2" style="color: #667eea;"></i>Рекомендации</h5>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var rec in Model.Recommendations)
+                        {
+                            <li class="mb-3"><i class="fas fa-arrow-right text-primary me-2"></i>@rec</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a asp-action="Index" class="btn btn-outline-gradient">
+                    <i class="fas fa-redo me-2"></i>Новый расчет
+                </a>
+                <a asp-controller="Projects" asp-action="Create" class="btn btn-gradient">
+                    <i class="fas fa-plus-circle me-2"></i>Создать проект на основе расчета
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('costChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.Breakdown.Select(k => $"'{k.Key}'")))],
+                datasets: [{
+                    data: [@string.Join(",", Model.Breakdown.Select(k => k.Value))],
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+                        '#fa709a', '#ff6b6b', '#feca57', '#48dbfb'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+}

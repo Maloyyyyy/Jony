@@ -1,0 +1,46 @@
+﻿@model JonyBalls3.Models.User
+@{
+    ViewData["Title"] = "Мой профиль";
+}
+
+<div class="container py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body text-center p-4">
+                    @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                    {
+                        <img src="@Model.AvatarUrl" class="rounded-circle mb-3" width="150" height="150">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:150px;height:150px;">
+                            <i class="fas fa-user fa-5x"></i>
+                        </div>
+                    }
+                    <h4>@Model.FirstName @Model.LastName</h4>
+                    <p class="text-muted">@Model.Email</p>
+                    <a asp-action="Edit" class="btn btn-primary">Редактировать</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white">
+                    <h5>Личная информация</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Телефон:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Город:</strong> @Model.Location</p>
+                    <p><strong>Дата рождения:</strong> @Model.BirthDate?.ToString("dd.MM.yyyy")</p>
+                    <p><strong>О себе:</strong> @Model.Bio</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

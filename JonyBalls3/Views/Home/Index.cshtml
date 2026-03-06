@@ -1,0 +1,242 @@
+﻿@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-75" data-aos="fade-up">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <h1 class="display-3 fw-bold mb-4">
+                <span style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Управляй ремонтом
+                </span>
+                <br>просто и эффективно
+            </h1>
+            <p class="lead text-muted mb-4">JonyBalls3 — комплексная платформа для управления ремонтными работами. От поиска подрядчиков до финальной отделки.</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Projects" asp-action="Create" class="btn btn-gradient btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Создать проект
+                </a>
+                <a asp-controller="Calculator" asp-action="Index" class="btn btn-outline-gradient btn-lg">
+                    <i class="fas fa-calculator me-2"></i>Рассчитать смету
+                </a>
+            </div>
+            <div class="mt-5">
+                <div class="d-flex align-items-center gap-4">
+                    <div>
+                        <h3 class="fw-bold mb-0">500+</h3>
+                        <small class="text-muted">Проектов завершено</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">200+</h3>
+                        <small class="text-muted">Подрядчиков</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">98%</h3>
+                        <small class="text-muted">Довольных клиентов</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
+            <img src="https://via.placeholder.com/600x400/667eea/ffffff?text=JonyBalls3" class="img-fluid rounded-4 shadow-lg" alt="Hero">
+        </div>
+    </div>
+
+    <!-- Преимущества -->
+    <div class="row g-4 py-5">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">Почему выбирают <span style="color: #667eea;">JonyBalls3</span></h2>
+            <p class="lead text-muted">Все инструменты для успешного ремонта в одном месте</p>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-modern card">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-4">
+                        <i class="fas fa-magic fa-3x"></i>
+                    </div>
+                    <h4>Простота использования</h4>
+                    <p class="text-muted">Интуитивный интерфейс, понятный каждому. Не нужно быть профессионалом.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-modern card">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-success bg-opacity-10 text-success mx-auto mb-4">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                    </div>
+                    <h4>Полный контроль</h4>
+                    <p class="text-muted">Отслеживайте бюджет, сроки и качество работ в реальном времени.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card-modern card">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-info bg-opacity-10 text-info mx-auto mb-4">
+                        <i class="fas fa-users fa-3x"></i>
+                    </div>
+                    <h4>Проверенные подрядчики</h4>
+                    <p class="text-muted">Только верифицированные специалисты с реальными отзывами.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Как это работает -->
+    <div class="row py-5 bg-white rounded-4 shadow-sm mb-5">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">Как это работает</h2>
+            <p class="lead text-muted">Всего 4 простых шага</p>
+        </div>
+
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-center position-relative">
+                <div class="display-1 fw-bold text-primary opacity-25">1</div>
+                <div class="position-relative" style="margin-top: -40px;">
+                    <div class="icon-circle bg-primary text-white mx-auto mb-3">
+                        <i class="fas fa-plus fa-2x"></i>
+                    </div>
+                    <h5>Создайте проект</h5>
+                    <p class="text-muted">Укажите параметры и бюджет</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-center position-relative">
+                <div class="display-1 fw-bold text-success opacity-25">2</div>
+                <div class="position-relative" style="margin-top: -40px;">
+                    <div class="icon-circle bg-success text-white mx-auto mb-3">
+                        <i class="fas fa-calculator fa-2x"></i>
+                    </div>
+                    <h5>Рассчитайте смету</h5>
+                    <p class="text-muted">Получите точную стоимость</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+            <div class="text-center position-relative">
+                <div class="display-1 fw-bold text-info opacity-25">3</div>
+                <div class="position-relative" style="margin-top: -40px;">
+                    <div class="icon-circle bg-info text-white mx-auto mb-3">
+                        <i class="fas fa-handshake fa-2x"></i>
+                    </div>
+                    <h5>Найдите подрядчика</h5>
+                    <p class="text-muted">Выберите из проверенных</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+            <div class="text-center position-relative">
+                <div class="display-1 fw-bold text-warning opacity-25">4</div>
+                <div class="position-relative" style="margin-top: -40px;">
+                    <div class="icon-circle bg-warning text-white mx-auto mb-3">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h5>Контролируйте процесс</h5>
+                    <p class="text-muted">Следите за выполнением</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Отзывы -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">Что говорят клиенты</h2>
+            <p class="lead text-muted">Реальные отзывы наших пользователей</p>
+        </div>
+
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-modern card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="rounded-circle me-3" width="60" height="60" alt="Avatar">
+                        <div>
+                            <h5 class="mb-1">Алексей Петров</h5>
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted">"Отличный сервис! Помог найти хорошего мастера для ремонта кухни. Всё сделали качественно и в срок."</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-modern card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2" class="rounded-circle me-3" width="60" height="60" alt="Avatar">
+                        <div>
+                            <h5 class="mb-1">Елена Смирнова</h5>
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted">"Калькулятор сметы очень помог спланировать бюджет. Рекомендую!"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card-modern card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=3" class="rounded-circle me-3" width="60" height="60" alt="Avatar">
+                        <div>
+                            <h5 class="mb-1">Дмитрий Иванов</h5>
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted">"Удобный интерфейс, всё понятно. Уже второй проект веду через JonyBalls3."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="row py-5">
+        <div class="col-12">
+            <div class="bg-gradient rounded-4 p-5 text-white text-center" style="background: linear-gradient(135deg, #667eea, #764ba2);" data-aos="zoom-in">
+                <h2 class="display-6 fw-bold mb-4">Готовы начать ремонт?</h2>
+                <p class="lead mb-4">Присоединяйтесь к тысячам довольных клиентов</p>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold">
+                    <i class="fas fa-user-plus me-2"></i>Создать аккаунт бесплатно
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+</style>

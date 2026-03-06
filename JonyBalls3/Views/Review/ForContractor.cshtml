@@ -1,0 +1,137 @@
+﻿@using System.Security.Claims
+@model JonyBalls3.Models.ContractorProfile
+@{
+    ViewData["Title"] = $"Отзывы о {Model.CompanyName}";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body text-center p-4">
+                    <h4>@Model.CompanyName</h4>
+                    <p class="text-muted">@Model.Specialization</p>
+                    
+                    <div class="mb-3">
+                        <h2 class="text-primary">@Model.Rating.ToString("F1")</h2>
+                        <div class="text-warning">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                if (i < Math.Floor(Model.Rating))
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else if (i < Model.Rating)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
+                        </div>
+                        <p class="text-muted">@Model.ReviewsCount отзывов</p>
+                    </div>
+
+                    @if (User.Identity.IsAuthenticated && Model.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    {
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                            Оставить отзыв
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white">
+                    <h5>Все отзывы</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Reviews.Any())
+                    {
+                        <p class="text-muted text-center">Пока нет отзывов</p>
+                    }
+                    else
+                    {
+                        @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <h6>@review.User?.FullName</h6>
+                                    <div class="text-warning">
+                                        @for (int i = 0; i < review.Rating; i++)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <p>@review.Comment</p>
+                                <small class="text-muted">@review.CreatedAt.ToString("dd.MM.yyyy")</small>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Оставить отзыв</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <input type="hidden" name="contractorId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Оценка</label>
+                        <select name="rating" class="form-select" required>
+                            <option value="5">5 - Отлично</option>
+                            <option value="4">4 - Хорошо</option>
+                            <option value="3">3 - Нормально</option>
+                            <option value="2">2 - Плохо</option>
+                            <option value="1">1 - Ужасно</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Комментарий</label>
+                        <textarea name="comment" class="form-control" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="submitReview">Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('submitReview').addEventListener('click', function() {
+        var form = document.getElementById('reviewForm');
+        var formData = new FormData(form);
+        
+        fetch('/Review/Create', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+</script>

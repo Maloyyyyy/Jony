@@ -1,0 +1,61 @@
+﻿@using System.Security.Claims
+@model List<JonyBalls3.Models.Project>
+@{
+    ViewData["Title"] = "Сообщения";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Мои чаты</h1>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
+            <h3>У вас пока нет сообщений</h3>
+            <p>Начните общение, пригласив подрядчика в проект</p>
+        </div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var project in Model)
+            {
+                var otherUser = project.UserId == currentUserId 
+                    ? project.Contractor?.User 
+                    : project.User;
+                var lastMessage = project.ChatMessages?.OrderByDescending(m => m.SentAt).FirstOrDefault();
+
+                <a href="/Chat/Project/@project.Id" class="list-group-item list-group-item-action">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            @if (otherUser?.AvatarUrl != null)
+                            {
+                                <img src="@otherUser.AvatarUrl" class="rounded-circle" width="50" height="50">
+                            }
+                            else
+                            {
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6>@project.Name</h6>
+                                @if (lastMessage != null)
+                                {
+                                    <small>@lastMessage.SentAt.ToString("HH:mm")</small>
+                                }
+                            </div>
+                            <p class="mb-0 text-muted">
+                                @(otherUser?.FullName ?? "Пользователь"):
+                                @lastMessage?.Message
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

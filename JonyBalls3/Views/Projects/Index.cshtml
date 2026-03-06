@@ -1,0 +1,129 @@
+﻿@model IEnumerable<JonyBalls3.Models.Project>
+
+@{
+    ViewData["Title"] = "Мои проекты";
+}
+
+<div class="container py-4">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-project-diagram me-2" style="color: #667eea;"></i>
+                Мои проекты
+            </h1>
+            <p class="lead text-muted">Управляйте всеми своими проектами ремонта</p>
+        </div>
+        <a asp-action="Create" class="btn btn-gradient btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Новый проект
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="display-1 text-muted mb-4">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h3 class="mb-3">У вас пока нет проектов</h3>
+            <p class="text-muted mb-4">Создайте первый проект и начните ремонт</p>
+            <a asp-action="Create" class="btn btn-gradient btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Создать проект
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-modern card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 text-truncate">@item.Name</h5>
+                                <span class="badge @(item.Status == JonyBalls3.Models.ProjectStatus.Completed ? "badge-success" : 
+                                    item.Status == JonyBalls3.Models.ProjectStatus.Active ? "badge-info" : "badge-warning")">
+                                    @item.Status
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-ruler me-2 text-primary"></i>Площадь:</span>
+                                    <span class="fw-bold">@item.Area м²</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-money-bill me-2 text-success"></i>Бюджет:</span>
+                                    <span class="fw-bold">@item.Budget.ToString("N0") ₽</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-chart-line me-2 text-info"></i>Прогресс:</span>
+                                    <span class="fw-bold">@item.Progress%</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 5px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @item.Progress%;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-calendar me-2 text-warning"></i>Создан:</span>
+                                    <span class="fw-bold">@item.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mt-3">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gradient flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>Детали
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gradient flex-grow-1">
+                                    <i class="fas fa-edit me-1"></i>Ред.
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger flex-grow-1">
+                                    <i class="fas fa-trash me-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Статистика -->
+        <div class="row mt-5 g-4">
+            <div class="col-md-3">
+                <div class="card-modern card text-center">
+                    <div class="card-body">
+                        <h3 class="fw-bold text-primary mb-2">@Model.Count()</h3>
+                        <span class="text-muted">Всего проектов</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-modern card text-center">
+                    <div class="card-body">
+                        <h3 class="fw-bold text-success mb-2">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Completed)</h3>
+                        <span class="text-muted">Завершено</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-modern card text-center">
+                    <div class="card-body">
+                        <h3 class="fw-bold text-info mb-2">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Active)</h3>
+                        <span class="text-muted">В работе</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-modern card text-center">
+                    <div class="card-body">
+                        <h3 class="fw-bold text-warning mb-2">@Model.Sum(p => p.Budget).ToString("N0") ₽</h3>
+                        <span class="text-muted">Общий бюджет</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

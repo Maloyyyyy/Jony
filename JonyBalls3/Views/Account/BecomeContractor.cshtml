@@ -1,0 +1,102 @@
+@model JonyBalls3.Models.ContractorProfileViewModel
+@{
+    ViewData["Title"] = "Стать подрядчиком";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="text-center fw-bold" style="color: #667eea;">
+                        <i class="fas fa-hard-hat me-2"></i>Стать подрядчиком
+                    </h2>
+                    <p class="text-center text-muted mb-0">Заполните информацию о себе и своих услугах</p>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="BecomeContractor" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CompanyName" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                <input asp-for="CompanyName" class="form-control" />
+                            </div>
+                            <span asp-validation-for="CompanyName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Specialization" class="form-label fw-bold"></label>
+                            <input asp-for="Specialization" class="form-control" placeholder="Например: Отделочные работы, сантехника, электрика" />
+                            <span asp-validation-for="Specialization" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Опишите ваш опыт, услуги, преимущества..."></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ExperienceYears" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                    <input asp-for="ExperienceYears" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="HourlyRate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₽/час</span>
+                                    <input asp-for="HourlyRate" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Phone" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input asp-for="Phone" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Website" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                    <input asp-for="Website" class="form-control" placeholder="https://..." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PortfolioFiles" class="form-label fw-bold"></label>
+                            <input asp-for="PortfolioFiles" type="file" multiple accept="image/*" class="form-control" />
+                            <small class="text-muted">Вы можете загрузить несколько фотографий ваших работ</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            После отправки заявки вы станете подрядчиком и сможете получать приглашения.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Отправить заявку
+                            </button>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-gradient">
+                                <i class="fas fa-times me-2"></i>Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
