@@ -1,0 +1,53 @@
+@model JonyBalls3.Models.ProjectStage
+@{
+    var canEdit = true; // можно передать из контроллера, но пока так
+}
+
+<div class="container-fluid">
+    <h4>@Model.Name</h4>
+    <p class="text-muted">@Model.Description</p>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="border rounded p-2">
+                <small class="text-muted">Бюджет этапа</small>
+                <div class="fw-bold">@Model.Budget.ToString("N0") ₽</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-2">
+                <small class="text-muted">Потрачено</small>
+                <div class="fw-bold text-warning">@Model.Spent.ToString("N0") ₽</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-2">
+                <small class="text-muted">Прогресс</small>
+                <div class="fw-bold text-success">@Model.Progress%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress mb-4" style="height: 20px;">
+        <div class="progress-bar bg-success" role="progressbar" style="width: @Model.Progress%;">@Model.Progress%</div>
+    </div>
+
+    @if (Model.Photos != null && Model.Photos.Any())
+    {
+        <h6>Фотографии этапа</h6>
+        <div class="photo-grid mb-4">
+            @foreach (var photo in Model.Photos)
+            {
+                <a href="@photo.ImageUrl" target="_blank">
+                    <img src="@photo.ImageUrl" class="photo-thumb" alt="stage photo" />
+                </a>
+            }
+        </div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-sm btn-outline-primary update-progress" data-stage-id="@Model.Id" data-progress="@Model.Progress">Обновить прогресс</button>
+        <button class="btn btn-sm btn-outline-success add-expense-to-stage" data-stage-id="@Model.Id">Добавить расход</button>
+        <button class="btn btn-sm btn-outline-info upload-stage-photo" data-stage-id="@Model.Id">Добавить фото</button>
+    </div>
+</div>

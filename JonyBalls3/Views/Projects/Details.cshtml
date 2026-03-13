@@ -1,7 +1,40 @@
-﻿@model JonyBalls3.Models.Project
+﻿@using System.Security.Claims
+@model JonyBalls3.Models.Project
 @{
     ViewData["Title"] = Model.Name;
+    var isOwner = User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.UserId;
+    var isContractor = Model.Contractor != null && User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.Contractor.UserId;
+    var canEdit = isOwner || isContractor;
 }
+
+<style>
+    .stage-card {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stage-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .photo-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .photo-thumb {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        transition: transform 0.2s;
+    }
+    .photo-thumb:hover {
+        transform: scale(1.05);
+        border-color: #6EB5C0;
+    }
+</style>
 
 <div class="container py-4">
     <!-- Шапка проекта -->
@@ -93,7 +126,7 @@
             </div>
         </div>
     }
-    else
+    else if (isOwner)
     {
         <div class="card shadow-lg border-0 rounded-4 mb-4">
             <div class="card-body p-4 text-center">
@@ -112,9 +145,12 @@
         <div class="card-header bg-white border-0 pt-4 px-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-list me-2" style="color: #667eea;"></i>Этапы работ</h5>
-                <button class="btn btn-sm btn-outline-gradient" data-bs-toggle="modal" data-bs-target="#addStageModal">
-                    <i class="fas fa-plus me-1"></i>Добавить этап
-                </button>
+                @if (canEdit)
+                {
+                    <button class="btn btn-sm btn-outline-gradient" data-bs-toggle="modal" data-bs-target="#addStageModal">
+                        <i class="fas fa-plus me-1"></i>Добавить этап
+                    </button>
+                }
             </div>
         </div>
         <div class="card-body p-4">
@@ -124,54 +160,130 @@
             }
             else
             {
-                @foreach (var stage in Model.Stages.OrderBy(s => s.Order))
-                {
-                    <div class="border rounded-3 p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h6 class="mb-1 fw-bold">@stage.Name</h6>
-                                <p class="text-muted small mb-1">@stage.Description</p>
+                <div class="row g-3">
+                    @foreach (var stage in Model.Stages.OrderBy(s => s.Order))
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card stage-card border-0 shadow-sm h-100" data-stage-id="@stage.Id" onclick="loadStageDetails(@stage.Id)">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0">@stage.Name</h6>
+                                        <span class="badge @(stage.Status == JonyBalls3.Models.StageStatus.Completed ? "badge-success" : 
+                                            stage.Status == JonyBalls3.Models.StageStatus.InProgress ? "badge-info" : "badge-secondary")">
+                                            @stage.Status
+                                        </span>
+                                    </div>
+                                    <p class="small text-muted mb-2">@(stage.Description?.Length > 50 ? stage.Description.Substring(0, 50) + "..." : stage.Description)</p>
+                                    <div class="row small">
+                                        <div class="col-6 text-muted">Бюджет:</div>
+                                        <div class="col-6 fw-bold text-end">@stage.Budget.ToString("N0") ₽</div>
+                                        <div class="col-6 text-muted">Потрачено:</div>
+                                        <div class="col-6 fw-bold text-end">@stage.Spent.ToString("N0") ₽</div>
+                                    </div>
+                                    <div class="progress mt-2" style="height: 5px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @stage.Progress%;"></div>
+                                    </div>
+                                    @if (stage.Photos != null && stage.Photos.Any())
+                                    {
+                                        <div class="mt-2 text-end">
+                                            <i class="fas fa-image text-muted"></i> @stage.Photos.Count
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                            <span class="badge @(stage.Status == JonyBalls3.Models.StageStatus.Completed ? "badge-success" : 
-                                stage.Status == JonyBalls3.Models.StageStatus.InProgress ? "badge-info" : "badge-secondary")">
-                                @stage.Status
-                            </span>
                         </div>
-                        <div class="row g-2 small">
-                            <div class="col-md-4">
-                                <span class="text-muted">Бюджет:</span> <span class="fw-bold">@stage.Budget.ToString("N0") ₽</span>
-                            </div>
-                            <div class="col-md-4">
-                                <span class="text-muted">Потрачено:</span> <span class="fw-bold">@stage.Spent.ToString("N0") ₽</span>
-                            </div>
-                            <div class="col-md-4">
-                                <span class="text-muted">Прогресс:</span> <span class="fw-bold">@stage.Progress%</span>
-                            </div>
-                        </div>
-                        <div class="progress mt-2" style="height: 5px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: @stage.Progress%;"></div>
-                        </div>
-                    </div>
-                }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Расходы -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2" style="color: #667eea;"></i>Расходы</h5>
+            @if (canEdit)
+            {
+                <button class="btn btn-sm btn-outline-gradient" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                    <i class="fas fa-plus me-1"></i>Добавить расход
+                </button>
+            }
+        </div>
+        <div class="card-body p-4">
+            @if (!Model.Expenses.Any())
+            {
+                <p class="text-muted text-center mb-0">Нет расходов</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Сумма</th>
+                                <th>Чек</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var exp in Model.Expenses.OrderByDescending(e => e.Date))
+                            {
+                                <tr>
+                                    <td>@exp.Date.ToString("dd.MM.yyyy")</td>
+                                    <td>@exp.Name</td>
+                                    <td>@exp.Category</td>
+                                    <td class="fw-bold text-danger">@exp.Amount.ToString("N0") ₽</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(exp.ReceiptUrl))
+                                        {
+                                            <a href="@exp.ReceiptUrl" target="_blank">Чек</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
     </div>
 
     <!-- Кнопки действий -->
     <div class="d-flex gap-2 justify-content-end">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gradient">
-            <i class="fas fa-edit me-2"></i>Редактировать
-        </a>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
-            <i class="fas fa-trash me-2"></i>Удалить
-        </a>
+        @if (isOwner)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gradient">
+                <i class="fas fa-edit me-2"></i>Редактировать
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-2"></i>Удалить
+            </a>
+        }
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Назад
         </a>
     </div>
 </div>
 
+<!-- Модальное окно для этапа -->
+<div class="modal fade" id="stageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stageModalTitle">Этап работ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="stageModalBody">
+                <!-- Содержимое будет загружаться через AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Модальное окно добавления этапа -->
+<!-- Модальное окно добавления этапа (AJAX) -->
 <div class="modal fade" id="addStageModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -180,7 +292,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="AddStage" method="post">
+                <form asp-action="AddStage" method="post" id="addStageForm">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="ProjectId" value="@Model.Id" />
                     <div class="mb-3">
                         <label class="form-label">Название этапа</label>
@@ -194,9 +307,271 @@
                         <label class="form-label">Бюджет этапа (руб.)</label>
                         <input type="number" name="Budget" class="form-control" />
                     </div>
-                    <button type="submit" class="btn btn-gradient w-100">Добавить</button>
+                    <button type="submit" class="btn btn-gradient w-100">Добавить этап</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+<!-- Модальное окно добавления расхода -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить расход</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="AddExpense" method="post" enctype="multipart/form-data" id="expenseForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ProjectId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input type="text" name="Name" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Сумма (руб.)</label>
+                            <input type="number" name="Amount" class="form-control" step="0.01" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Категория</label>
+                            <select name="Category" class="form-select" required>
+                                <option value="Materials">Материалы</option>
+                                <option value="Labor">Работы</option>
+                                <option value="Tools">Инструменты</option>
+                                <option value="Delivery">Доставка</option>
+                                <option value="Other">Прочее</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата</label>
+                        <input type="date" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Чек (фото)</label>
+                        <input type="file" name="ReceiptImage" class="form-control" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-gradient w-100">Добавить расход</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно загрузки фото этапа -->
+<div class="modal fade" id="uploadStagePhotoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Загрузить фото этапа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UploadStagePhoto" method="post" enctype="multipart/form-data" id="photoForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="StageId" id="photoStageId" value="" />
+                    <div class="mb-3">
+                        <label class="form-label">Фото</label>
+                        <input type="file" name="Image" class="form-control" accept="image/*" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gradient w-100">Загрузить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно обновления прогресса -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Обновить прогресс этапа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="progressStageId" />
+                <div class="mb-3">
+                    <label class="form-label">Новый прогресс (%)</label>
+                    <input type="range" class="form-range" min="0" max="100" step="1" id="progressSlider" value="0">
+                    <div class="text-center mt-2">
+                        <span id="progressValue" class="fw-bold">0%</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Потрачено на этапе (руб.)</label>
+                    <input type="number" class="form-control" id="progressSpent" step="0.01" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveProgressBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Глобальные экземпляры модальных окон
+        let stageModal, addStageModal, addExpenseModal, uploadPhotoModal, updateProgressModal;
+
+        $(document).ready(function() {
+            // Инициализация Bootstrap модальных окон
+            stageModal = new bootstrap.Modal(document.getElementById('stageModal'));
+            addStageModal = new bootstrap.Modal(document.getElementById('addStageModal'));
+            addExpenseModal = new bootstrap.Modal(document.getElementById('addExpenseModal'));
+            uploadPhotoModal = new bootstrap.Modal(document.getElementById('uploadStagePhotoModal'));
+            updateProgressModal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
+
+            // Делегирование событий для динамических кнопок
+            $(document).on('click', '.add-expense-to-stage', function() {
+                var stageId = $(this).data('stage-id');
+                // Добавляем скрытое поле в форму расхода, если его нет
+                if ($('#expenseForm input[name="StageId"]').length === 0) {
+                    $('#expenseForm').append('<input type="hidden" name="StageId" value="' + stageId + '" />');
+                } else {
+                    $('#expenseForm input[name="StageId"]').val(stageId);
+                }
+                addExpenseModal.show();
+            });
+
+            $(document).on('click', '.upload-stage-photo', function() {
+                var stageId = $(this).data('stage-id');
+                $('#photoStageId').val(stageId);
+                uploadPhotoModal.show();
+            });
+
+            $(document).on('click', '.update-progress', function() {
+                var stageId = $(this).data('stage-id');
+                var currentProgress = $(this).data('progress') || 0;
+                $('#progressStageId').val(stageId);
+                $('#progressSlider').val(currentProgress);
+                $('#progressValue').text(currentProgress + '%');
+                $('#progressSpent').val(0);
+                updateProgressModal.show();
+            });
+
+            // Обработка ползунка прогресса
+            $('#progressSlider').on('input', function() {
+                $('#progressValue').text($(this).val() + '%');
+            });
+
+            // Сохранение прогресса
+            $('#saveProgressBtn').click(function() {
+                var stageId = $('#progressStageId').val();
+                var progress = $('#progressSlider').val();
+                var spent = $('#progressSpent').val();
+                $.post('/Projects/UpdateStageProgress', {
+                    stageId: stageId,
+                    progress: progress,
+                    spent: spent,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                }).done(function(response) {
+                    if (response.success) {
+                        toastr.success('Прогресс обновлён');
+                        updateProgressModal.hide();
+                        location.reload();
+                    } else {
+                        toastr.error('Ошибка');
+                    }
+                }).fail(function() {
+                    toastr.error('Ошибка сервера');
+                });
+            });
+
+            // Обработка отправки формы расхода через AJAX
+            $('#expenseForm').submit(function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '@Url.Action("AddExpense", "Projects")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            addExpenseModal.hide();
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message || 'Ошибка');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Ошибка сервера');
+                    }
+                });
+            });
+
+            // Обработка отправки формы фото через AJAX
+            $('#photoForm').submit(function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '@Url.Action("UploadStagePhoto", "Projects")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            uploadPhotoModal.hide();
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message || 'Ошибка');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Ошибка сервера');
+                    }
+                });
+            });
+        });
+
+        // Функция загрузки деталей этапа
+        function loadStageDetails(stageId) {
+            $('#stageModalBody').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div></div>');
+            stageModal.show();
+            $.get('/ProjectStage/Details/' + stageId, function(data) {
+                $('#stageModalBody').html(data);
+            }).fail(function() {
+                $('#stageModalBody').html('<p class="text-danger text-center">Ошибка загрузки</p>');
+            });
+        
+            // Обработка отправки формы добавления этапа через AJAX
+            $('#addStageForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.post('@Url.Action("AddStage", "Projects")', formData)
+                    .done(function(response) {
+                        if (response.success) {
+                            toastr.success('Этап добавлен');
+                            addStageModal.hide();
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message || 'Ошибка');
+                        }
+                    })
+                    .fail(function(xhr) {
+                        toastr.error('Ошибка сервера: ' + xhr.responseText);
+                    });
+            });
+}
+    </script>
+}
+

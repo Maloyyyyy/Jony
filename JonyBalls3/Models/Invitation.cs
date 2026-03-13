@@ -12,13 +12,13 @@ namespace JonyBalls3.Models
         public int ProjectId { get; set; }
         
         [ForeignKey("ProjectId")]
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
         
         [Required]
         public int ContractorId { get; set; }
         
         [ForeignKey("ContractorId")]
-        public virtual ContractorProfile Contractor { get; set; }
+        public virtual ContractorProfile? Contractor { get; set; }
         
         [Required]
         public string Message { get; set; } = "";
@@ -31,9 +31,16 @@ namespace JonyBalls3.Models
     
     public enum InvitationStatus
     {
+        [Display(Name = "Ожидает")]
         Pending = 1,
+        
+        [Display(Name = "Принято")]
         Accepted = 2,
+        
+        [Display(Name = "Отклонено")]
         Rejected = 3,
+        
+        [Display(Name = "Отменено")]
         Cancelled = 4
     }
 }

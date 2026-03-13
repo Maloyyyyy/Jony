@@ -12,7 +12,7 @@ namespace JonyBalls3.Models
         public int ProjectId { get; set; }
         
         [ForeignKey("ProjectId")]
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
         
         [Required]
         [StringLength(200)]

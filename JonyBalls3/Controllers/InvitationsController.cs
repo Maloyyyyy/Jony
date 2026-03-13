@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using JonyBalls3.Services;
 using System.Security.Claims;
@@ -27,60 +27,81 @@ namespace JonyBalls3.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var contractor = await _contractorService.GetContractorByUserIdAsync(userId);
-
-            if (contractor == null)
+            try
             {
-                return RedirectToAction("Index", "Home");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var contractor = await _contractorService.GetContractorByUserIdAsync(userId);
+                if (contractor == null)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var invitations = await _invitationService.GetInvitationsForContractorAsync(contractor.Id);
+                return View(invitations);
             }
-
-            var invitations = await _invitationService.GetInvitationsForContractorAsync(contractor.Id);
-            return View(invitations);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при загрузке списка приглашений");
+                return View(new List<JonyBalls3.Models.Invitation>());
+            }
         }
 
-       [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create(int projectId, int contractorId, string message)
-{
-    try
-    {
-        _logger.LogInformation($"Create called with projectId={projectId}, contractorId={contractorId}, message={message}");
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        _logger.LogInformation($"User ID: {userId}");
-
-        var project = await _projectService.GetProjectByIdAsync(projectId);
-        if (project == null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(int projectId, int contractorId, string message)
         {
-            _logger.LogWarning("Project not found");
-            return Json(new { success = false, message = "Проект не найден" });
+            try
+            {
+                _logger.LogInformation($"Попытка создания приглашения: projectId={projectId}, contractorId={contractorId}");
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "Необходимо авторизоваться" });
+                }
+
+                var project = await _projectService.GetProjectByIdAsync(projectId);
+                if (project == null)
+                {
+                    return Json(new { success = false, message = "Проект не найден" });
+                }
+
+                if (project.UserId != userId)
+                {
+                    return Json(new { success = false, message = "У вас нет прав для этого действия" });
+                }
+
+                var contractor = await _contractorService.GetContractorByIdAsync(contractorId);
+                if (contractor == null)
+                {
+                    return Json(new { success = false, message = "Подрядчик не найден" });
+                }
+
+                var exists = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
+                if (exists)
+                {
+                    return Json(new { success = false, message = "Приглашение уже отправлено" });
+                }
+
+                var invitation = await _invitationService.CreateInvitationAsync(projectId, contractorId, message, userId);
+                
+                return Json(new { 
+                    success = true, 
+                    message = "Приглашение отправлено",
+                    invitationId = invitation.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании приглашения");
+                return Json(new { success = false, message = "Ошибка при отправке приглашения" });
+            }
         }
-
-        if (project.UserId != userId)
-        {
-            _logger.LogWarning($"User {userId} is not owner of project {projectId}");
-            return Json(new { success = false, message = "У вас нет прав для этого действия" });
-        }
-
-        var exists = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
-        if (exists)
-        {
-            _logger.LogWarning("Invitation already exists");
-            return Json(new { success = false, message = "Приглашение уже отправлено" });
-        }
-
-        var invitation = await _invitationService.CreateInvitationAsync(projectId, contractorId, message, userId);
-        _logger.LogInformation($"Invitation created with id {invitation.Id}");
-
-        return Json(new { success = true, message = "Приглашение отправлено", invitationId = invitation.Id });
-    }
-   catch (Exception ex)
-{
-    _logger.LogError(ex, "Ошибка при создании приглашения");
-    return Json(new { success = false, message = "Ошибка: " + ex.Message });
-}
-}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -88,9 +109,15 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _invitationService.AcceptInvitationAsync(id, userId);
+                _logger.LogInformation($"Попытка принятия приглашения {id}");
 
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "Необходимо авторизоваться" });
+                }
+
+                var result = await _invitationService.AcceptInvitationAsync(id, userId);
                 if (result)
                 {
                     return Json(new { success = true, message = "Приглашение принято" });
@@ -100,7 +127,7 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при принятии приглашения");
+                _logger.LogError(ex, "Ошибка при принятии приглашения {Id}", id);
                 return Json(new { success = false, message = "Ошибка сервера" });
             }
         }
@@ -111,9 +138,15 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _invitationService.RejectInvitationAsync(id, userId);
+                _logger.LogInformation($"Попытка отклонения приглашения {id}");
 
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "Необходимо авторизоваться" });
+                }
+
+                var result = await _invitationService.RejectInvitationAsync(id, userId);
                 if (result)
                 {
                     return Json(new { success = true, message = "Приглашение отклонено" });
@@ -123,7 +156,7 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при отклонении приглашения");
+                _logger.LogError(ex, "Ошибка при отклонении приглашения {Id}", id);
                 return Json(new { success = false, message = "Ошибка сервера" });
             }
         }
@@ -134,9 +167,15 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _invitationService.CancelInvitationAsync(id, userId);
+                _logger.LogInformation($"Попытка отмены приглашения {id}");
 
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "Необходимо авторизоваться" });
+                }
+
+                var result = await _invitationService.CancelInvitationAsync(id, userId);
                 if (result)
                 {
                     return Json(new { success = true, message = "Приглашение отменено" });
@@ -146,7 +185,7 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при отмене приглашения");
+                _logger.LogError(ex, "Ошибка при отмене приглашения {Id}", id);
                 return Json(new { success = false, message = "Ошибка сервера" });
             }
         }
@@ -154,21 +193,33 @@ public async Task<IActionResult> Create(int projectId, int contractorId, string 
         [HttpGet]
         public async Task<IActionResult> GetPendingCount()
         {
-            if (!User.Identity.IsAuthenticated)
+            try
             {
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return Ok(0);
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Ok(0);
+                }
+
+                var contractor = await _contractorService.GetContractorByUserIdAsync(userId);
+                if (contractor == null)
+                {
+                    return Ok(0);
+                }
+
+                var count = await _invitationService.GetPendingCountAsync(contractor.Id);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении количества приглашений");
                 return Ok(0);
             }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var contractor = await _contractorService.GetContractorByUserIdAsync(userId);
-
-            if (contractor == null)
-            {
-                return Ok(0);
-            }
-
-            var count = await _invitationService.GetPendingCountAsync(contractor.Id);
-            return Ok(count);
         }
     }
 }

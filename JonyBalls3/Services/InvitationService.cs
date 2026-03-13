@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using JonyBalls3.Data;
 using JonyBalls3.Models;
 
@@ -23,9 +23,7 @@ namespace JonyBalls3.Services
             {
                 _logger.LogInformation($"Создание приглашения: projectId={projectId}, contractorId={contractorId}, userId={userId}");
 
-                var project = await _context.Projects
-                    .FirstOrDefaultAsync(p => p.Id == projectId);
-
+                var project = await _context.Projects.FindAsync(projectId);
                 if (project == null)
                 {
                     _logger.LogError($"Проект с ID {projectId} не найден");
@@ -35,17 +33,10 @@ namespace JonyBalls3.Services
                 var contractor = await _context.ContractorProfiles
                     .Include(c => c.User)
                     .FirstOrDefaultAsync(c => c.Id == contractorId);
-
                 if (contractor == null)
                 {
                     _logger.LogError($"Подрядчик с ID {contractorId} не найден");
                     throw new Exception("Подрядчик не найден");
-                }
-
-                if (contractor.User == null)
-                {
-                    _logger.LogError($"У подрядчика {contractorId} нет связанного пользователя");
-                    throw new Exception("Ошибка данных подрядчика");
                 }
 
                 var invitation = new Invitation
@@ -60,25 +51,6 @@ namespace JonyBalls3.Services
                 _context.Invitations.Add(invitation);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Приглашение сохранено с ID {invitation.Id}");
-
-                try
-                {
-                    var chatMessage = new ChatMessage
-                    {
-                        ProjectId = projectId,
-                        SenderId = userId,
-                        ReceiverId = contractor.UserId,
-                        Message = $"📨 Приглашение отправлено: {message}",
-                        SentAt = DateTime.Now
-                    };
-                    _context.ChatMessages.Add(chatMessage);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Системное сообщение создано");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Ошибка при создании системного сообщения");
-                }
 
                 return invitation;
             }
@@ -146,7 +118,7 @@ namespace JonyBalls3.Services
                     return false;
                 }
 
-                if (invitation.Contractor.UserId != userId)
+                if (invitation.Contractor?.UserId != userId)
                 {
                     _logger.LogWarning($"Пользователь {userId} не является получателем приглашения");
                     return false;
@@ -155,19 +127,27 @@ namespace JonyBalls3.Services
                 invitation.Status = InvitationStatus.Accepted;
                 invitation.RespondedAt = DateTime.Now;
 
+                // Привязываем подрядчика к проекту
                 var project = invitation.Project;
-                project.ContractorId = invitation.ContractorId;
-                project.UpdatedAt = DateTime.Now;
-
-                var chatMessage = new ChatMessage
+                if (project != null)
                 {
-                    ProjectId = project.Id,
-                    SenderId = userId,
-                    ReceiverId = project.UserId,
-                    Message = "✅ Приглашение принято! Теперь можно обсуждать детали.",
-                    SentAt = DateTime.Now
-                };
-                _context.ChatMessages.Add(chatMessage);
+                    project.ContractorId = invitation.ContractorId;
+                    project.UpdatedAt = DateTime.Now;
+                }
+
+                // Создаём системное сообщение в чате
+                if (project != null && invitation.Contractor != null)
+                {
+                    var chatMessage = new ChatMessage
+                    {
+                        ProjectId = project.Id,
+                        SenderId = userId,
+                        ReceiverId = project.UserId,
+                        Message = "✅ Приглашение принято! Теперь можно обсуждать детали.",
+                        SentAt = DateTime.Now
+                    };
+                    _context.ChatMessages.Add(chatMessage);
+                }
 
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Приглашение {invitationId} принято");
@@ -192,21 +172,24 @@ namespace JonyBalls3.Services
                 if (invitation == null || invitation.Status != InvitationStatus.Pending)
                     return false;
 
-                if (invitation.Contractor.UserId != userId)
+                if (invitation.Contractor?.UserId != userId)
                     return false;
 
                 invitation.Status = InvitationStatus.Rejected;
                 invitation.RespondedAt = DateTime.Now;
 
-                var chatMessage = new ChatMessage
+                if (invitation.Project != null)
                 {
-                    ProjectId = invitation.ProjectId,
-                    SenderId = userId,
-                    ReceiverId = invitation.Project.UserId,
-                    Message = "❌ Приглашение отклонено",
-                    SentAt = DateTime.Now
-                };
-                _context.ChatMessages.Add(chatMessage);
+                    var chatMessage = new ChatMessage
+                    {
+                        ProjectId = invitation.ProjectId,
+                        SenderId = userId,
+                        ReceiverId = invitation.Project.UserId,
+                        Message = "❌ Приглашение отклонено",
+                        SentAt = DateTime.Now
+                    };
+                    _context.ChatMessages.Add(chatMessage);
+                }
 
                 await _context.SaveChangesAsync();
                 return true;
@@ -229,7 +212,7 @@ namespace JonyBalls3.Services
                 if (invitation == null || invitation.Status != InvitationStatus.Pending)
                     return false;
 
-                if (invitation.Project.UserId != userId)
+                if (invitation.Project?.UserId != userId)
                     return false;
 
                 invitation.Status = InvitationStatus.Cancelled;

@@ -4,6 +4,9 @@ using JonyBalls3.Services;
 using JonyBalls3.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using JonyBalls3.Data;
 
 namespace JonyBalls3.Controllers
 {
@@ -14,17 +17,23 @@ namespace JonyBalls3.Controllers
         private readonly ContractorService _contractorService;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<ProjectsController> _logger;
+        private readonly IWebHostEnvironment _env;
+        private readonly ApplicationDbContext _context;
 
         public ProjectsController(
             ProjectService projectService,
             ContractorService contractorService,
             UserManager<User> userManager,
-            ILogger<ProjectsController> logger)
+            ILogger<ProjectsController> logger,
+            IWebHostEnvironment env,
+            ApplicationDbContext context)
         {
             _projectService = projectService;
             _contractorService = contractorService;
             _userManager = userManager;
             _logger = logger;
+            _env = env;
+            _context = context;
         }
 
         // GET: Projects
@@ -51,7 +60,7 @@ namespace JonyBalls3.Controllers
         {
             ViewBag.FromCalculator = fromCalculator;
             ViewBag.CalculatedTotal = calculatedTotal ?? 0;
-            
+
             var viewModel = new ProjectViewModel();
             if (fromCalculator && calculatedTotal.HasValue)
             {
@@ -59,7 +68,7 @@ namespace JonyBalls3.Controllers
                 viewModel.FromCalculator = true;
                 viewModel.CalculatedTotal = calculatedTotal.Value;
             }
-            
+
             return View(viewModel);
         }
 
@@ -111,39 +120,39 @@ namespace JonyBalls3.Controllers
                 };
 
                 await _projectService.CreateProjectAsync(project);
-                
+
                 // Создаем базовые этапы
                 var stages = new List<ProjectStage>
                 {
-                    new ProjectStage { 
-                        ProjectId = project.Id, 
-                        Name = "Подготовка помещения", 
-                        Order = 1, 
-                        Budget = project.Budget * 0.1m, 
+                    new ProjectStage {
+                        ProjectId = project.Id,
+                        Name = "Подготовка помещения",
+                        Order = 1,
+                        Budget = project.Budget * 0.1m,
                         Status = StageStatus.NotStarted,
                         Progress = 0
                     },
-                    new ProjectStage { 
-                        ProjectId = project.Id, 
-                        Name = "Черновые работы", 
-                        Order = 2, 
-                        Budget = project.Budget * 0.3m, 
+                    new ProjectStage {
+                        ProjectId = project.Id,
+                        Name = "Черновые работы",
+                        Order = 2,
+                        Budget = project.Budget * 0.3m,
                         Status = StageStatus.NotStarted,
                         Progress = 0
                     },
-                    new ProjectStage { 
-                        ProjectId = project.Id, 
-                        Name = "Чистовая отделка", 
-                        Order = 3, 
-                        Budget = project.Budget * 0.4m, 
+                    new ProjectStage {
+                        ProjectId = project.Id,
+                        Name = "Чистовая отделка",
+                        Order = 3,
+                        Budget = project.Budget * 0.4m,
                         Status = StageStatus.NotStarted,
                         Progress = 0
                     },
-                    new ProjectStage { 
-                        ProjectId = project.Id, 
-                        Name = "Уборка и сдача", 
-                        Order = 4, 
-                        Budget = project.Budget * 0.2m, 
+                    new ProjectStage {
+                        ProjectId = project.Id,
+                        Name = "Уборка и сдача",
+                        Order = 4,
+                        Budget = project.Budget * 0.2m,
                         Status = StageStatus.NotStarted,
                         Progress = 0
                     }
@@ -279,17 +288,29 @@ namespace JonyBalls3.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Projects/AddStage
+        // POST: Projects/AddStage (AJAX)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddStage(ProjectStage stage)
         {
-            if (ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    return Json(new { success = false, message = string.Join(", ", errors) });
+                }
+
                 await _projectService.AddStageAsync(stage);
-                return RedirectToAction(nameof(Details), new { id = stage.ProjectId });
+                // Обновляем общий прогресс проекта
+                await _projectService.UpdateProjectProgressAsync(stage.ProjectId);
+                return Json(new { success = true, message = "Этап добавлен" });
             }
-            return RedirectToAction(nameof(Details), new { id = stage.ProjectId });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при добавлении этапа");
+                return Json(new { success = false, message = "Ошибка сервера" });
+            }
         }
 
         // GET: Projects/FindContractor/5
@@ -300,14 +321,8 @@ namespace JonyBalls3.Controllers
             {
                 return NotFound();
             }
-            
-            var contractors = await _contractorService.GetAllContractorsAsync();
-            
-            if (project.ContractorId.HasValue)
-            {
-                contractors = contractors.Where(c => c.Id != project.ContractorId.Value).ToList();
-            }
-            
+
+            var contractors = await _contractorService.SearchContractorsAsync(project.RepairType.ToString(), null);
             ViewBag.ProjectId = id;
             return View(contractors);
         }
@@ -317,23 +332,16 @@ namespace JonyBalls3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InviteContractor(int projectId, int contractorId, string message)
         {
-            try
+            var project = await _projectService.GetProjectByIdAsync(projectId);
+            if (project == null)
             {
-                var project = await _projectService.GetProjectByIdAsync(projectId);
-                if (project == null)
-                {
-                    return Json(new { success = false, message = "Проект не найден" });
-                }
+                return Json(new { success = false, message = "Проект не найден" });
+            }
 
-                // TODO: Добавить InvitationService позже
-                
-                return Json(new { success = true, message = "Приглашение отправлено" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при отправке приглашения");
-                return Json(new { success = false, message = "Ошибка сервера" });
-            }
+            // Здесь будет логика создания приглашения
+            // TODO: Добавить InvitationService
+
+            return Json(new { success = true, message = "Приглашение отправлено" });
         }
 
         // POST: Projects/UpdateStageProgress
@@ -348,7 +356,7 @@ namespace JonyBalls3.Controllers
 
             stage.Progress = progress;
             stage.Spent = spent;
-            
+
             if (progress == 100)
             {
                 stage.Status = StageStatus.Completed;
@@ -364,22 +372,107 @@ namespace JonyBalls3.Controllers
             }
 
             await _projectService.UpdateStageAsync(stage);
-            
+
+            // Обновляем общий прогресс проекта
             await _projectService.UpdateProjectProgressAsync(stage.ProjectId);
-            
+
             return Json(new { success = true });
         }
 
         // POST: Projects/AddExpense
         [HttpPost]
-        public async Task<IActionResult> AddExpense(Expense expense)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddExpense(AddExpenseViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // TODO: Добавить логику
-                return Json(new { success = true });
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
             }
-            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
+
+            try
+            {
+                var expense = new Expense
+                {
+                    ProjectId = model.ProjectId,
+                    StageId = model.StageId,
+                    Name = model.Name,
+                    Description = model.Description,
+                    Amount = model.Amount,
+                    Category = Enum.Parse<ExpenseCategory>(model.Category),
+                    Date = model.Date
+                };
+
+                if (model.ReceiptImage != null && model.ReceiptImage.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/expenses");
+                    Directory.CreateDirectory(uploadsFolder);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptImage.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ReceiptImage.CopyToAsync(stream);
+                    }
+                    expense.ReceiptUrl = "/uploads/expenses/" + fileName;
+                }
+
+                _context.Expenses.Add(expense);
+                await _context.SaveChangesAsync();
+
+                // Обновляем потраченную сумму проекта
+                var project = await _projectService.GetProjectByIdAsync(model.ProjectId);
+                project.Spent += expense.Amount;
+                await _projectService.UpdateProjectAsync(project);
+
+                return Json(new { success = true, message = "Расход добавлен" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка добавления расхода");
+                return Json(new { success = false, message = "Ошибка сервера" });
+            }
+        }
+
+        // POST: Projects/UploadStagePhoto
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadStagePhoto(StagePhotoViewModel model)
+        {
+            if (!ModelState.IsValid || model.Image == null)
+            {
+                return Json(new { success = false, message = "Не выбрано фото" });
+            }
+
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/stages");
+                Directory.CreateDirectory(uploadsFolder);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+
+                var photo = new StagePhoto
+                {
+                    StageId = model.StageId,
+                    ImageUrl = "/uploads/stages/" + fileName,
+                    Description = model.Description,
+                    UploadedAt = DateTime.Now,
+                    UploadedById = userId
+                };
+
+                _context.StagePhotos.Add(photo);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Фото загружено" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка загрузки фото");
+                return Json(new { success = false, message = "Ошибка сервера" });
+            }
         }
 
         // GET: Projects/GetUserProjects
@@ -388,13 +481,13 @@ namespace JonyBalls3.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var projects = await _projectService.GetUserProjectsAsync(userId);
-            
+
             var result = projects.Select(p => new {
                 id = p.Id,
                 name = p.Name,
                 status = p.Status.ToString()
             });
-            
+
             return Json(result);
         }
     }

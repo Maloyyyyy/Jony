@@ -1,0 +1,16 @@
+﻿@model JonyBalls3.Models.StagePhotoViewModel
+@{
+    Layout = null;
+}
+<form asp-action="UploadStagePhoto" method="post" enctype="multipart/form-data" id="photoForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="StageId" value="@Model.StageId" />
+    <div class="mb-3">
+        <label class="form-label">Фото</label>
+        <input type="file" name="Image" class="form-control" accept="image/*" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Описание</label>
+        <textarea name="Description" class="form-control" rows="2"></textarea>
+    </div>
+</form>

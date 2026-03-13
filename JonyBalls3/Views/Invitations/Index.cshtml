@@ -1,3 +1,4 @@
+﻿@using System.Security.Claims
 @model List<JonyBalls3.Models.Invitation>
 @{
     ViewData["Title"] = "Мои приглашения";
@@ -5,11 +6,13 @@
 
 <div class="container py-4">
     <h1 class="mb-4">Мои приглашения</h1>
-    @if (!Model.Any())
+
+    @if (Model == null || !Model.Any())
     {
         <div class="text-center py-5">
             <i class="fas fa-envelope-open fa-4x text-muted mb-3"></i>
             <h3>Нет новых приглашений</h3>
+            <p class="text-muted">Когда вас пригласят в проект, они появятся здесь</p>
         </div>
     }
     else
@@ -17,19 +20,32 @@
         <div class="list-group">
             @foreach (var inv in Model.OrderByDescending(i => i.SentAt))
             {
-                <div class="list-group-item">
-                    <h5>Проект: @inv.Project?.Name</h5>
-                    <p>Заказчик: @inv.Project?.User?.FullName</p>
-                    <p>Сообщение: @inv.Message</p>
-                    @if (inv.Status == JonyBalls3.Models.InvitationStatus.Pending)
-                    {
-                        <button class="btn btn-success accept-invite" data-id="@inv.Id">Принять</button>
-                        <button class="btn btn-danger reject-invite" data-id="@inv.Id">Отклонить</button>
-                    }
-                    else if (inv.Status == JonyBalls3.Models.InvitationStatus.Accepted)
-                    {
-                        <span class="badge bg-success">Принято</span>
-                    }
+                <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Проект: @(inv.Project?.Name ?? "Неизвестный проект")</h5>
+                        <small>@inv.SentAt.ToString("dd.MM.yyyy HH:mm")</small>
+                    </div>
+                    <p class="mb-1">Заказчик: @(inv.Project?.User?.FullName ?? "Неизвестно")</p>
+                    <p class="mb-1"><i class="fas fa-comment me-1"></i>@inv.Message</p>
+                    <div class="mt-2">
+                        @if (inv.Status == JonyBalls3.Models.InvitationStatus.Pending)
+                        {
+                            <button class="btn btn-sm btn-success accept-invite" data-id="@inv.Id">Принять</button>
+                            <button class="btn btn-sm btn-danger reject-invite" data-id="@inv.Id">Отклонить</button>
+                        }
+                        else if (inv.Status == JonyBalls3.Models.InvitationStatus.Accepted)
+                        {
+                            <span class="badge bg-success">Принято</span>
+                        }
+                        else if (inv.Status == JonyBalls3.Models.InvitationStatus.Rejected)
+                        {
+                            <span class="badge bg-danger">Отклонено</span>
+                        }
+                        else if (inv.Status == JonyBalls3.Models.InvitationStatus.Cancelled)
+                        {
+                            <span class="badge bg-secondary">Отменено</span>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -38,15 +54,38 @@
 
 @section Scripts {
     <script>
-        $('.accept-invite').click(function() {
-            var id = $(this).data('id');
-            $.post('/Invitations/Accept/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
-                .done(function(res) { if(res.success) location.reload(); });
-        });
-        $('.reject-invite').click(function() {
-            var id = $(this).data('id');
-            $.post('/Invitations/Reject/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
-                .done(function(res) { if(res.success) location.reload(); });
+        $(document).ready(function() {
+            $('.accept-invite').click(function() {
+                var id = $(this).data('id');
+                $.post('/Invitations/Accept/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
+                    .done(function(res) {
+                        if (res.success) {
+                            toastr.success(res.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(res.message);
+                        }
+                    })
+                    .fail(function() {
+                        toastr.error('Ошибка сервера');
+                    });
+            });
+
+            $('.reject-invite').click(function() {
+                var id = $(this).data('id');
+                $.post('/Invitations/Reject/' + id, { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
+                    .done(function(res) {
+                        if (res.success) {
+                            toastr.success(res.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(res.message);
+                        }
+                    })
+                    .fail(function() {
+                        toastr.error('Ошибка сервера');
+                    });
+            });
         });
     </script>
 }

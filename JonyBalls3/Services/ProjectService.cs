@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
- using JonyBalls3.Data;
+using JonyBalls3.Data;
 using JonyBalls3.Models;
 
 namespace JonyBalls3.Services
@@ -13,24 +13,29 @@ namespace JonyBalls3.Services
             _context = context;
         }
         
+        // Получает проекты, где пользователь либо владелец, либо подрядчик
         public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
             return await _context.Projects
                 .Include(p => p.Stages)
                 .Include(p => p.Contractor)
-                .Where(p => p.UserId == userId)
+                .Include(p => p.Expenses)
+                .Include(p => p.ChatMessages)
+                .Where(p => p.UserId == userId || (p.Contractor != null && p.Contractor.UserId == userId))
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
         
-        public async Task<Project> GetProjectByIdAsync(int id)
-        {
-            return await _context.Projects
-                .Include(p => p.Stages)
-                .Include(p => p.Contractor)
-                .Include(p => p.Expenses)
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
+       public async Task<Project> GetProjectByIdAsync(int id)
+{
+    return await _context.Projects
+        .Include(p => p.Stages)
+            .ThenInclude(s => s.Photos)   // ← добавляем загрузку фото этапов
+        .Include(p => p.Contractor)
+        .Include(p => p.Expenses)
+        .Include(p => p.ChatMessages)
+        .FirstOrDefaultAsync(p => p.Id == id);
+}
         
         public async Task<Project> CreateProjectAsync(Project project)
         {
