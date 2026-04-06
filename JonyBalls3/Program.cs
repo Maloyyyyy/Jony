@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using JonyBalls3.Data;
 using JonyBalls3.Models;
@@ -36,10 +36,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// НАШИ СЕРВИСЫ - ВСЕ ДОЛЖНЫ БЫТЬ ЗДЕСЬ!
+// НАШИ СЕРВИСЫ
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<ContractorService>();
 builder.Services.AddScoped<CalculatorService>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<InvitationService>();
 
@@ -64,14 +65,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-// В методе Main или после builder.Build():
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated(); // Создаст базу если её нет
-}
-
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -93,26 +86,58 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
 // Автоматическое обновление базы данных при запуске
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     
-    // Проверяем, нужно ли добавить новые колонки
+    // Проверяем и добавляем колонки пользователя
     try
     {
-        // Пытаемся выполнить запрос к колонке Bio - если ошибка, значит колонки нет
         context.Database.ExecuteSqlRaw("SELECT Bio FROM AspNetUsers LIMIT 1");
     }
     catch
     {
-        // Колонки нет - добавляем через SQL напрямую
         try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Bio TEXT DEFAULT ''"); } catch { }
         try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Location TEXT DEFAULT ''"); } catch { }
         try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN BirthDate TEXT"); } catch { }
         try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Phone TEXT DEFAULT ''"); } catch { }
-        
-        Console.WriteLine("✅ База данных обновлена!");
+        Console.WriteLine("✅ Колонки пользователя добавлены!");
+    }
+
+    // Создаём таблицу Notifications если её нет
+    try
+    {
+        context.Database.ExecuteSqlRaw("SELECT Id FROM Notifications LIMIT 1");
+    }
+    catch
+    {
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                CREATE TABLE IF NOT EXISTS Notifications (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    UserId TEXT NOT NULL,
+                    Title TEXT NOT NULL DEFAULT '',
+                    Message TEXT NOT NULL DEFAULT '',
+                    Type INTEGER NOT NULL DEFAULT 1,
+                    Link TEXT,
+                    IsRead INTEGER NOT NULL DEFAULT 0,
+                    CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                    ReadAt TEXT,
+                    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS IX_Notifications_UserId ON Notifications(UserId);
+                CREATE INDEX IF NOT EXISTS IX_Notifications_IsRead ON Notifications(IsRead);
+            ");
+            Console.WriteLine("✅ Таблица Notifications создана!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Ошибка создания таблицы Notifications: {ex.Message}");
+        }
     }
 }
+
 app.Run();

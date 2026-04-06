@@ -1,0 +1,132 @@
+@model List<JonyBalls3.Models.Notification>
+@{
+    ViewData["Title"] = "Уведомления";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="fas fa-bell me-2" style="color: #667eea;"></i>Уведомления
+        </h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" id="markAllReadBtn">
+                <i class="fas fa-check-double me-1"></i>Прочитать все
+            </button>
+            <button class="btn btn-outline-danger btn-sm" id="deleteAllReadBtn">
+                <i class="fas fa-trash me-1"></i>Удалить прочитанные
+            </button>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Нет уведомлений</h5>
+            <p class="text-muted">Здесь будут появляться важные события по вашим проектам</p>
+        </div>
+    }
+    else
+    {
+        <div class="list-group" id="notificationsList">
+            @foreach (var n in Model)
+            {
+                var iconClass = n.Type switch {
+                    JonyBalls3.Models.NotificationType.Success => "fas fa-check-circle text-success",
+                    JonyBalls3.Models.NotificationType.Warning => "fas fa-exclamation-triangle text-warning",
+                    JonyBalls3.Models.NotificationType.Danger => "fas fa-times-circle text-danger",
+                    JonyBalls3.Models.NotificationType.Chat => "fas fa-comments text-primary",
+                    JonyBalls3.Models.NotificationType.Invitation => "fas fa-envelope text-info",
+                    JonyBalls3.Models.NotificationType.Project => "fas fa-project-diagram text-purple",
+                    _ => "fas fa-info-circle text-secondary"
+                };
+                var bgClass = n.IsRead ? "" : "bg-light border-start border-primary border-3";
+                <div class="list-group-item list-group-item-action @bgClass notification-item" 
+                     data-id="@n.Id" data-read="@n.IsRead.ToString().ToLower()">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="mt-1">
+                            <i class="@iconClass fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 @(n.IsRead ? "text-muted" : "fw-bold")">@n.Title</h6>
+                                    <p class="mb-1 text-muted small">@n.Message</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 ms-3">
+                                    <small class="text-muted text-nowrap">@n.CreatedAt.ToString("dd.MM HH:mm")</small>
+                                    @if (!n.IsRead)
+                                    {
+                                        <span class="badge bg-primary rounded-pill">Новое</span>
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger delete-notification" 
+                                            data-id="@n.Id" title="Удалить">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(n.Link))
+                            {
+                                <a href="@n.Link" class="btn btn-sm btn-outline-primary mt-1" 
+                                   onclick="markRead(@n.Id)">
+                                    <i class="fas fa-arrow-right me-1"></i>Перейти
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function markRead(id) {
+        $.post('/Notifications/MarkAsRead/' + id);
+    }
+
+    $('#markAllReadBtn').click(function() {
+        $.post('/Notifications/MarkAllAsRead', function(res) {
+            if (res.success) {
+                toastr.success('Все уведомления отмечены как прочитанные');
+                setTimeout(() => location.reload(), 800);
+            }
+        });
+    });
+
+    $('#deleteAllReadBtn').click(function() {
+        if (!confirm('Удалить все прочитанные уведомления?')) return;
+        $.post('/Notifications/DeleteAllRead', function(res) {
+            if (res.success) {
+                toastr.success('Прочитанные уведомления удалены');
+                setTimeout(() => location.reload(), 800);
+            }
+        });
+    });
+
+    $(document).on('click', '.delete-notification', function(e) {
+        e.stopPropagation();
+        var id = $(this).data('id');
+        var item = $(this).closest('.notification-item');
+        $.post('/Notifications/Delete/' + id, function(res) {
+            if (res.success) {
+                item.fadeOut(300, function() { $(this).remove(); });
+            }
+        });
+    });
+
+    // Отмечаем как прочитанное при клике на элемент
+    $(document).on('click', '.notification-item', function() {
+        var id = $(this).data('id');
+        var isRead = $(this).data('read');
+        if (isRead === false || isRead === 'false') {
+            markRead(id);
+            $(this).removeClass('bg-light border-start border-primary border-3');
+            $(this).data('read', 'true');
+            $(this).find('.badge.bg-primary').remove();
+            $(this).find('h6').removeClass('fw-bold').addClass('text-muted');
+        }
+    });
+</script>
+}

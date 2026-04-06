@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JonyBalls3.Models;
 
@@ -20,6 +20,7 @@ namespace JonyBalls3.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<StagePhoto> StagePhotos { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,6 +84,13 @@ namespace JonyBalls3.Data
                 .HasForeignKey(r => r.ProjectId)
                 .OnDelete(DeleteBehavior.SetNull);
             
+            // Notification
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
             // Индексы
             modelBuilder.Entity<ContractorProfile>()
                 .HasIndex(c => c.Specialization);
@@ -119,6 +127,12 @@ namespace JonyBalls3.Data
             
             modelBuilder.Entity<Invitation>()
                 .HasIndex(i => i.Status);
+            
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.UserId);
+            
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.IsRead);
         }
     }
 }

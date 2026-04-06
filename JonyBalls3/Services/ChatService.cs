@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using JonyBalls3.Data;
 using JonyBalls3.Models;
 
@@ -7,10 +7,12 @@ namespace JonyBalls3.Services
     public class ChatService
     {
         private readonly ApplicationDbContext _context;
+        private readonly NotificationService _notificationService;
 
-        public ChatService(ApplicationDbContext context)
+        public ChatService(ApplicationDbContext context, NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<List<ChatMessage>> GetMessagesAsync(int projectId, int lastMessageId = 0)
@@ -40,6 +42,26 @@ namespace JonyBalls3.Services
 
             _context.ChatMessages.Add(chatMessage);
             await _context.SaveChangesAsync();
+
+            // Уведомление получателю о новом сообщении
+            try
+            {
+                var project = await _context.Projects
+                    .FirstOrDefaultAsync(p => p.Id == projectId);
+                var sender = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == senderId);
+
+                if (project != null && sender != null && !string.IsNullOrEmpty(receiverId))
+                {
+                    var senderName = sender.FullName ?? sender.UserName ?? "Пользователь";
+                    await _notificationService.NotifyNewMessageAsync(receiverId, senderName, project.Name, projectId);
+                }
+            }
+            catch
+            {
+                // Не прерываем отправку сообщения если уведомление не создалось
+            }
+
             return chatMessage;
         }
 
@@ -62,6 +84,23 @@ namespace JonyBalls3.Services
             foreach (var m in messages)
                 m.ReadAt = DateTime.Now;
             await _context.SaveChangesAsync();
+
+            // Отмечаем уведомления о чате как прочитанные
+            try
+            {
+                var chatNotifications = await _context.Notifications
+                    .Where(n => n.UserId == userId && !n.IsRead && n.Type == NotificationType.Chat
+                        && n.Link == $"/Chat/Project/{projectId}")
+                    .ToListAsync();
+                foreach (var n in chatNotifications)
+                {
+                    n.IsRead = true;
+                    n.ReadAt = DateTime.Now;
+                }
+                if (chatNotifications.Any())
+                    await _context.SaveChangesAsync();
+            }
+            catch { }
         }
 
         public async Task MarkMessagesAsReadAsync(List<int> messageIds, string userId)

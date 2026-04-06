@@ -1,25 +1,38 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - JonyBalls3</title>
+    <title>@ViewData["Title"] - Jony</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .navbar { border-bottom: 1px solid #f0f0f0; }
+        .notification-dropdown { width: 360px; max-height: 480px; overflow-y: auto; }
+        .notification-item-dd { border-left: 3px solid transparent; transition: background 0.2s; }
+        .notification-item-dd.unread { border-left-color: #667eea; background: #f8f9ff; }
+        .notification-item-dd:hover { background: #f0f2ff; }
+        .notif-icon-success { color: #28a745; }
+        .notif-icon-warning { color: #ffc107; }
+        .notif-icon-danger  { color: #dc3545; }
+        .notif-icon-chat    { color: #0d6efd; }
+        .notif-icon-invitation { color: #17a2b8; }
+        .notif-icon-project { color: #6f42c1; }
+        .notif-icon-info    { color: #6c757d; }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                <i class="fas fa-tools me-2" style="color: #667eea;"></i>JonyBalls3
+                <i class="fas fa-tools me-2" style="color: #667eea;"></i>Jony
             </a>
-            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
@@ -42,32 +55,47 @@
                             <i class="fas fa-users me-1"></i>Подрядчики
                         </a>
                     </li>
-                    
-                    @* ЧАТ В НАВИГАЦИИ *@
-                    @if (User.Identity.IsAuthenticated)
+
+                    @if (User.Identity!.IsAuthenticated)
                     {
+                        @* ЧАТ *@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Chat" asp-action="Index">
                                 <i class="fas fa-comments me-1"></i>Чаты
                                 <span class="badge bg-danger" id="chatBadge" style="display:none;">0</span>
                             </a>
                         </li>
-                    }
-                    
-                    @* ПРОФИЛЬ И ВХОД *@
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        var isContractor = ViewBag.IsContractor ?? false;
-                        
-                        @if (!isContractor)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-warning" asp-controller="Account" asp-action="BecomeContractor">
-                                    <i class="fas fa-hard-hat me-1"></i>Стать подрядчиком
-                                </a>
-                            </li>
-                        }
-                        else
+
+                        @* КОЛОКОЛЬЧИК УВЕДОМЛЕНИЙ *@
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#" id="notifDropdown" role="button"
+                               data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger" id="notifBadge" style="display:none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notifDropdown">
+                                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                                    <span class="fw-bold">Уведомления</span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-link text-muted p-0" id="markAllReadBtn" title="Прочитать все">
+                                            <i class="fas fa-check-double"></i>
+                                        </button>
+                                        <a href="/Notifications/Index" class="btn btn-sm btn-link text-primary p-0" title="Все уведомления">
+                                            <i class="fas fa-list"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="notifList">
+                                    <div class="text-center text-muted py-4 px-3">
+                                        <i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>
+                                        Нет новых уведомлений
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        @* ПРИГЛАШЕНИЯ ДЛЯ ПОДРЯДЧИКОВ *@
+                        @if (ViewBag.IsContractor != null && (bool)ViewBag.IsContractor)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Invitations" asp-action="Index">
@@ -76,21 +104,30 @@
                                 </a>
                             </li>
                         }
-                        
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" asp-controller="Account" asp-action="BecomeContractor">
+                                    <i class="fas fa-hard-hat me-1"></i>Стать подрядчиком
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user-circle me-1"></i>@User.Identity.Name
-                                @if (isContractor)
+                                @if (ViewBag.IsContractor != null && (bool)ViewBag.IsContractor)
                                 {
                                     <span class="badge bg-warning text-dark ms-1">Подрядчик</span>
                                 }
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="fas fa-user me-2"></i>Мой профиль</a></li>
-                                @if (isContractor)
+                                @if (ViewBag.IsContractor != null && (bool)ViewBag.IsContractor)
                                 {
                                     <li><a class="dropdown-item" asp-controller="Contractors" asp-action="MyProfile"><i class="fas fa-id-card me-2"></i>Профиль подрядчика</a></li>
                                 }
+                                <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="fas fa-bell me-2"></i>Уведомления</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form asp-controller="Account" asp-action="Logout" method="post">
@@ -125,47 +162,125 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
+
     <script>
         toastr.options = {
             "closeButton": true,
             "progressBar": true,
-            "positionClass": "toast-top-right"
+            "positionClass": "toast-top-right",
+            "timeOut": "4000"
         };
+    </script>
 
-        function updateChatBadge() {
-            $.get('/Chat/GetUnreadCount')
-                .done(function(count) {
-                    if (count > 0) {
-                        $('#chatBadge').text(count).show();
-                    } else {
-                        $('#chatBadge').hide();
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <script>
+            var _prevNotifCount = -1;
+
+            function updateChatBadge() {
+                $.get('/Chat/GetUnreadCount').done(function(count) {
+                    if (count > 0) { $('#chatBadge').text(count).show(); }
+                    else { $('#chatBadge').hide(); }
+                });
+            }
+
+            function updateInvitationBadge() {
+                $.get('/Invitations/GetPendingCount').done(function(count) {
+                    if (count > 0) { $('#invitationBadge').text(count).show(); }
+                    else { $('#invitationBadge').hide(); }
+                });
+            }
+
+            function getNotifIcon(typeName) {
+                var icons = {
+                    'success':    '<i class="fas fa-check-circle notif-icon-success"></i>',
+                    'warning':    '<i class="fas fa-exclamation-triangle notif-icon-warning"></i>',
+                    'danger':     '<i class="fas fa-times-circle notif-icon-danger"></i>',
+                    'chat':       '<i class="fas fa-comments notif-icon-chat"></i>',
+                    'invitation': '<i class="fas fa-envelope notif-icon-invitation"></i>',
+                    'project':    '<i class="fas fa-project-diagram notif-icon-project"></i>',
+                    'info':       '<i class="fas fa-info-circle notif-icon-info"></i>'
+                };
+                return icons[typeName] || icons['info'];
+            }
+
+            function escHtml(str) {
+                return str ? str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+            }
+
+            function loadRecentNotifications(showToast) {
+                $.get('/Notifications/GetRecent').done(function(notifications) {
+                    var list = $('#notifList');
+                    if (!notifications || notifications.length === 0) {
+                        list.html('<div class="text-center text-muted py-4 px-3"><i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>Нет новых уведомлений</div>');
+                        return;
+                    }
+                    var html = '';
+                    notifications.forEach(function(n, idx) {
+                        var unreadClass = !n.isRead ? 'unread' : '';
+                        var link = n.link ? 'href="' + n.link + '"' : 'href="#"';
+                        html += '<a ' + link + ' class="d-block text-decoration-none text-dark notification-item-dd ' + unreadClass + ' px-3 py-2 border-bottom" onclick="markNotifRead(' + n.id + ', this, event)">' +
+                            '<div class="d-flex align-items-start gap-2">' +
+                                '<div class="mt-1">' + getNotifIcon(n.typeName) + '</div>' +
+                                '<div class="flex-grow-1">' +
+                                    '<div class="fw-semibold small">' + escHtml(n.title) + '</div>' +
+                                    '<div class="text-muted small">' + escHtml(n.message) + '</div>' +
+                                    '<div class="text-muted" style="font-size:11px;">' + (n.timeAgo || '') + '</div>' +
+                                '</div>' +
+                                (!n.isRead ? '<span class="badge bg-primary rounded-pill align-self-center" style="font-size:9px;">Новое</span>' : '') +
+                            '</div>' +
+                        '</a>';
+                        if (showToast && idx === 0 && !n.isRead) {
+                            setTimeout(function() { toastr.info(n.message, n.title, { timeOut: 5000 }); }, 300);
+                        }
+                    });
+                    list.html(html);
+                });
+            }
+
+            function updateNotifications() {
+                $.get('/Notifications/GetUnreadCount').done(function(data) {
+                    var count = data.count || 0;
+                    if (count > 0) { $('#notifBadge').text(count > 99 ? '99+' : count).show(); }
+                    else { $('#notifBadge').hide(); }
+                    if (count > _prevNotifCount && _prevNotifCount >= 0) {
+                        loadRecentNotifications(true);
+                    }
+                    _prevNotifCount = count;
+                });
+            }
+
+            function markNotifRead(id, el, event) {
+                $.post('/Notifications/MarkAsRead/' + id);
+                $(el).removeClass('unread').find('.badge.bg-primary').remove();
+            }
+
+            $('#markAllReadBtn').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $.post('/Notifications/MarkAllAsRead', function(res) {
+                    if (res.success) {
+                        $('#notifBadge').hide();
+                        _prevNotifCount = 0;
+                        loadRecentNotifications(false);
+                        toastr.success('Все уведомления прочитаны');
                     }
                 });
-        }
-        
-        function updateInvitationBadge() {
-            $.get('/Invitations/GetPendingCount')
-                .done(function(count) {
-                    if (count > 0) {
-                        $('#invitationBadge').text(count).show();
-                    } else {
-                        $('#invitationBadge').hide();
-                    }
-                });
-        }
-        
-        @if (User.Identity.IsAuthenticated)
-        {
-            <text>
-            setInterval(updateChatBadge, 30000);
-            setInterval(updateInvitationBadge, 30000);
+            });
+
+            $('#notifDropdown').on('show.bs.dropdown', function() {
+                loadRecentNotifications(false);
+            });
+
+            setInterval(updateChatBadge, 5000);
+            setInterval(updateInvitationBadge, 5000);
+            setInterval(updateNotifications, 8000);
             updateChatBadge();
             updateInvitationBadge();
-            </text>
-        }
-    </script>
-    
+            updateNotifications();
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

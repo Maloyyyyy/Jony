@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using JonyBalls3.Data;
 using JonyBalls3.Models;
 
@@ -8,13 +8,16 @@ namespace JonyBalls3.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<InvitationService> _logger;
+        private readonly NotificationService _notificationService;
 
         public InvitationService(
             ApplicationDbContext context,
-            ILogger<InvitationService> logger)
+            ILogger<InvitationService> logger,
+            NotificationService notificationService)
         {
             _context = context;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         public async Task<Invitation> CreateInvitationAsync(int projectId, int contractorId, string message, string userId)
@@ -23,7 +26,9 @@ namespace JonyBalls3.Services
             {
                 _logger.LogInformation($"Создание приглашения: projectId={projectId}, contractorId={contractorId}, userId={userId}");
 
-                var project = await _context.Projects.FindAsync(projectId);
+                var project = await _context.Projects
+                    .Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.Id == projectId);
                 if (project == null)
                 {
                     _logger.LogError($"Проект с ID {projectId} не найден");
@@ -51,6 +56,14 @@ namespace JonyBalls3.Services
                 _context.Invitations.Add(invitation);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Приглашение сохранено с ID {invitation.Id}");
+
+                // Уведомление подрядчику о новом приглашении
+                if (contractor.UserId != null)
+                {
+                    var ownerName = project.User?.FullName ?? project.User?.UserName ?? "Заказчик";
+                    await _notificationService.NotifyNewInvitationAsync(
+                        contractor.UserId, project.Name, ownerName, invitation.Id);
+                }
 
                 return invitation;
             }
@@ -103,7 +116,9 @@ namespace JonyBalls3.Services
             {
                 var invitation = await _context.Invitations
                     .Include(i => i.Project)
+                        .ThenInclude(p => p.User)
                     .Include(i => i.Contractor)
+                        .ThenInclude(c => c.User)
                     .FirstOrDefaultAsync(i => i.Id == invitationId);
 
                 if (invitation == null)
@@ -151,6 +166,15 @@ namespace JonyBalls3.Services
 
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Приглашение {invitationId} принято");
+
+                // Уведомление владельцу проекта о принятии
+                if (project != null && invitation.Contractor?.User != null)
+                {
+                    var contractorName = invitation.Contractor.User.FullName ?? invitation.Contractor.User.UserName ?? "Подрядчик";
+                    await _notificationService.NotifyContractorAssignedAsync(
+                        project.UserId, contractorName, project.Name, project.Id);
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -167,6 +191,7 @@ namespace JonyBalls3.Services
                 var invitation = await _context.Invitations
                     .Include(i => i.Project)
                     .Include(i => i.Contractor)
+                        .ThenInclude(c => c.User)
                     .FirstOrDefaultAsync(i => i.Id == invitationId);
 
                 if (invitation == null || invitation.Status != InvitationStatus.Pending)
@@ -192,6 +217,15 @@ namespace JonyBalls3.Services
                 }
 
                 await _context.SaveChangesAsync();
+
+                // Уведомление владельцу проекта об отклонении
+                if (invitation.Project != null && invitation.Contractor?.User != null)
+                {
+                    var contractorName = invitation.Contractor.User.FullName ?? invitation.Contractor.User.UserName ?? "Подрядчик";
+                    await _notificationService.NotifyInvitationRejectedAsync(
+                        invitation.Project.UserId, contractorName, invitation.Project.Name, invitation.Project.Id);
+                }
+
                 return true;
             }
             catch (Exception ex)
