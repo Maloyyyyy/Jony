@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JonyBalls3")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ec5acd9732b19851b88557e33d2c8b82b7c65f1f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da80be44a469710c2df86bd07e076ce1a33bbd53")]
 [assembly: System.Reflection.AssemblyProductAttribute("JonyBalls3")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JonyBalls3")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
