@@ -1,32 +1,34 @@
-﻿@model IEnumerable<JonyBalls3.Models.Project>
+@model IEnumerable<JonyBalls3.Models.Project>
 
 @{
     ViewData["Title"] = "Мои проекты";
 }
 
-<div class="container py-4">
-    <!-- Заголовок -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="display-5 fw-bold">
-                <i class="fas fa-project-diagram me-2" style="color: #667eea;"></i>
-                Мои проекты
-            </h1>
-            <p class="lead text-muted">Управляйте всеми своими проектами ремонта</p>
+<div class="container py-5">
+    <!-- HEADER -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="display-4 fw-bold mb-2">
+                    <i class="fas fa-project-diagram me-2 text-gradient"></i>Мои проекты
+                </h1>
+                <p class="lead text-muted">Управляйте всеми своими проектами ремонта в одном месте</p>
+            </div>
+            <a asp-action="Create" class="btn btn-gradient btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Новый проект
+            </a>
         </div>
-        <a asp-action="Create" class="btn btn-gradient btn-lg">
-            <i class="fas fa-plus-circle me-2"></i>Новый проект
-        </a>
     </div>
 
     @if (!Model.Any())
     {
+        <!-- EMPTY STATE -->
         <div class="text-center py-5">
-            <div class="display-1 text-muted mb-4">
-                <i class="fas fa-folder-open"></i>
+            <div style="font-size: 5rem; color: #e0e7ff; margin-bottom: 1.5rem;">
+                <i class="fas fa-inbox"></i>
             </div>
-            <h3 class="mb-3">У вас пока нет проектов</h3>
-            <p class="text-muted mb-4">Создайте первый проект и начните ремонт</p>
+            <h3 class="fw-bold mb-2">У вас пока нет проектов</h3>
+            <p class="text-muted mb-4">Создайте первый проект и начните управлять ремонтом</p>
             <a asp-action="Create" class="btn btn-gradient btn-lg">
                 <i class="fas fa-plus-circle me-2"></i>Создать проект
             </a>
@@ -34,53 +36,80 @@
     }
     else
     {
-        <div class="row g-4">
+        <!-- PROJECTS GRID -->
+        <div class="row g-4 mb-5">
             @foreach (var item in Model)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card-modern card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 text-truncate">@item.Name</h5>
-                                <span class="badge @(item.Status == JonyBalls3.Models.ProjectStatus.Completed ? "badge-success" : 
-                                    item.Status == JonyBalls3.Models.ProjectStatus.Active ? "badge-info" : "badge-warning")">
-                                    @item.Status
-                                </span>
-                            </div>
+                    <div class="card-modern card h-100 hover-lift">
+                        <!-- STATUS BADGE -->
+                        <div class="position-absolute top-0 end-0 p-3">
+                            @{
+                                var statusColor = item.Status == JonyBalls3.Models.ProjectStatus.Completed ? "bg-success" : 
+                                    item.Status == JonyBalls3.Models.ProjectStatus.Active ? "bg-info" : 
+                                    item.Status == JonyBalls3.Models.ProjectStatus.Paused ? "bg-warning" : "bg-secondary";
+                                var statusIcon = item.Status == JonyBalls3.Models.ProjectStatus.Completed ? "fa-check-circle" : 
+                                    item.Status == JonyBalls3.Models.ProjectStatus.Active ? "fa-play-circle" : 
+                                    item.Status == JonyBalls3.Models.ProjectStatus.Paused ? "fa-pause-circle" : "fa-clock";
+                            }
+                            <span class="badge @statusColor">
+                                <i class="fas @statusIcon me-1"></i>@item.Status
+                            </span>
                         </div>
+
                         <div class="card-body">
-                            <p class="text-muted mb-3">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+                            <!-- TITLE -->
+                            <h5 class="card-title fw-bold mb-2 pe-5">@item.Name</h5>
                             
+                            <!-- DESCRIPTION -->
+                            <p class="text-muted small mb-3">
+                                @(item.Description?.Length > 80 ? item.Description.Substring(0, 80) + "..." : item.Description)
+                            </p>
+
+                            <!-- PROGRESS BAR -->
                             <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-ruler me-2 text-primary"></i>Площадь:</span>
-                                    <span class="fw-bold">@item.Area м²</span>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted fw-600">Прогресс</small>
+                                    <small class="fw-bold text-gradient">@item.Progress%</small>
                                 </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-money-bill me-2 text-success"></i>Бюджет:</span>
-                                    <span class="fw-bold">@item.Budget.ToString("N0") ₽</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><i class="fas fa-chart-line me-2 text-info"></i>Прогресс:</span>
-                                    <span class="fw-bold">@item.Progress%</span>
-                                </div>
-                                <div class="progress mb-2" style="height: 5px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: @item.Progress%;"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span><i class="fas fa-calendar me-2 text-warning"></i>Создан:</span>
-                                    <span class="fw-bold">@item.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                <div class="progress" style="height: 6px; background: rgba(0,0,0,0.05);">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: @item.Progress%; background: linear-gradient(90deg, #667eea, #764ba2);"
+                                         aria-valuenow="@item.Progress" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
-                            
-                            <div class="d-flex gap-2 mt-3">
+
+                            <!-- STATS -->
+                            <div class="row g-2 mb-3 text-center">
+                                <div class="col-6">
+                                    <div class="p-2 rounded-2 bg-light">
+                                        <small class="text-muted d-block">Площадь</small>
+                                        <strong class="text-primary">@item.Area м²</strong>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded-2 bg-light">
+                                        <small class="text-muted d-block">Бюджет</small>
+                                        <strong class="text-success">@item.Budget.ToString("N0") ₽</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DATES -->
+                            <div class="d-flex justify-content-between text-muted small mb-3 pb-3 border-bottom">
+                                <span><i class="fas fa-calendar-alt me-1"></i>@item.CreatedAt.ToString("dd.MM.yy")</span>
+                                <span><i class="fas fa-hourglass-end me-1"></i>@item.EndDate?.ToString("dd.MM.yy")</span>
+                            </div>
+
+                            <!-- ACTIONS -->
+                            <div class="d-flex gap-2">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gradient flex-grow-1">
-                                    <i class="fas fa-eye me-1"></i>Детали
+                                    <i class="fas fa-eye me-1"></i>Открыть
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gradient flex-grow-1">
-                                    <i class="fas fa-edit me-1"></i>Ред.
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-glass flex-grow-1">
+                                    <i class="fas fa-edit me-1"></i>
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger flex-grow-1">
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-glass text-danger flex-grow-1">
                                     <i class="fas fa-trash me-1"></i>
                                 </a>
                             </div>
@@ -90,40 +119,100 @@
             }
         </div>
 
-        <!-- Статистика -->
-        <div class="row mt-5 g-4">
-            <div class="col-md-3">
-                <div class="card-modern card text-center">
-                    <div class="card-body">
-                        <h3 class="fw-bold text-primary mb-2">@Model.Count()</h3>
-                        <span class="text-muted">Всего проектов</span>
+        <!-- STATISTICS SECTION -->
+        <div class="row g-4 mt-3">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <small class="text-muted d-block mb-1">Всего проектов</small>
+                            <div class="stat-number">@Model.Count()</div>
+                        </div>
+                        <div style="font-size: 2.5rem; color: rgba(102, 126, 234, 0.1);">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card-modern card text-center">
-                    <div class="card-body">
-                        <h3 class="fw-bold text-success mb-2">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Completed)</h3>
-                        <span class="text-muted">Завершено</span>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <small class="text-muted d-block mb-1">Завершено</small>
+                            <div class="stat-number" style="color: #10b981;">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Completed)</div>
+                        </div>
+                        <div style="font-size: 2.5rem; color: rgba(16, 185, 129, 0.1);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card-modern card text-center">
-                    <div class="card-body">
-                        <h3 class="fw-bold text-info mb-2">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Active)</h3>
-                        <span class="text-muted">В работе</span>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <small class="text-muted d-block mb-1">В работе</small>
+                            <div class="stat-number" style="color: #06b6d4;">@Model.Count(p => p.Status == JonyBalls3.Models.ProjectStatus.Active)</div>
+                        </div>
+                        <div style="font-size: 2.5rem; color: rgba(6, 182, 212, 0.1);">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card-modern card text-center">
-                    <div class="card-body">
-                        <h3 class="fw-bold text-warning mb-2">@Model.Sum(p => p.Budget).ToString("N0") ₽</h3>
-                        <span class="text-muted">Общий бюджет</span>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <small class="text-muted d-block mb-1">Общий бюджет</small>
+                            <div class="stat-number" style="color: #f59e0b; font-size: 1.75rem;">@Model.Sum(p => p.Budget).ToString("N0") ₽</div>
+                        </div>
+                        <div style="font-size: 2.5rem; color: rgba(245, 158, 11, 0.1);">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     }
 </div>
+
+<style>
+    .btn-glass {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .card-modern {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .card-modern:hover::before {
+        transform: scaleX(1);
+    }
+</style>

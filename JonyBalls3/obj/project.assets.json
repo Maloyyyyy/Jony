@@ -2976,27 +2976,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\1238006\\.nuget\\packages\\": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\JonyBalls3.csproj",
+      "projectUniqueName": "/home/ubuntu/Jony/JonyBalls3/JonyBalls3.csproj",
       "projectName": "JonyBalls3",
-      "projectPath": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\JonyBalls3.csproj",
-      "packagesPath": "C:\\Users\\1238006\\.nuget\\packages\\",
-      "outputPath": "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\Desktop\\проект УП\\JonyBalls3\\JonyBalls3\\JonyBalls3\\obj\\",
+      "projectPath": "/home/ubuntu/Jony/JonyBalls3/JonyBalls3.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/home/ubuntu/Jony/JonyBalls3/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "\\\\mcb.local\\RoamingProfiles$\\StudentsData\\1238006\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3064,7 +3061,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

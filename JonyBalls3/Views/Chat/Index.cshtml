@@ -1,61 +1,165 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @model List<JonyBalls3.Models.Project>
 @{
     ViewData["Title"] = "Сообщения";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
-<div class="container py-4">
-    <h1 class="mb-4">Мои чаты</h1>
+<div class="container py-5">
+    <!-- HEADER -->
+    <div class="mb-5">
+        <h1 class="display-4 fw-bold mb-2">
+            <i class="fas fa-comments me-2 text-gradient"></i>Мои чаты
+        </h1>
+        <p class="lead text-muted">Общайтесь с подрядчиками и управляйте проектами</p>
+    </div>
 
     @if (!Model.Any())
     {
+        <!-- EMPTY STATE -->
         <div class="text-center py-5">
-            <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
-            <h3>У вас пока нет сообщений</h3>
-            <p>Начните общение, пригласив подрядчика в проект</p>
+            <div style="font-size: 5rem; color: #e0e7ff; margin-bottom: 1.5rem;">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3 class="fw-bold mb-2">У вас пока нет чатов</h3>
+            <p class="text-muted mb-4">Начните общение, пригласив подрядчика в проект</p>
+            <a asp-controller="Projects" asp-action="Index" class="btn btn-gradient btn-lg">
+                <i class="fas fa-project-diagram me-2"></i>Перейти к проектам
+            </a>
         </div>
     }
     else
     {
-        <div class="list-group">
-            @foreach (var project in Model)
-            {
-                var otherUser = project.UserId == currentUserId 
-                    ? project.Contractor?.User 
-                    : project.User;
-                var lastMessage = project.ChatMessages?.OrderByDescending(m => m.SentAt).FirstOrDefault();
+        <!-- CHATS LIST -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var project in Model)
+                    {
+                        var otherUser = project.UserId == currentUserId 
+                            ? project.Contractor?.User 
+                            : project.User;
+                        var lastMessage = project.ChatMessages?.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                        var unreadCount = project.ChatMessages?.Count(m => m.SenderId != currentUserId && !m.IsRead) ?? 0;
 
-                <a href="/Chat/Project/@project.Id" class="list-group-item list-group-item-action">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            @if (otherUser?.AvatarUrl != null)
-                            {
-                                <img src="@otherUser.AvatarUrl" class="rounded-circle" width="50" height="50">
-                            }
-                            else
-                            {
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
-                                    <i class="fas fa-user"></i>
+                        <a href="/Chat/Project/@project.Id" class="chat-card text-decoration-none">
+                            <div class="card-modern card hover-lift">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <!-- AVATAR -->
+                                        <div class="position-relative flex-shrink-0">
+                                            @if (otherUser?.AvatarUrl != null)
+                                            {
+                                                <img src="@otherUser.AvatarUrl" class="rounded-circle" width="60" height="60" alt="Avatar">
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px;height:60px;font-size:1.5rem;">
+                                                    @otherUser?.FullName?.FirstOrDefault()
+                                                </div>
+                                            }
+                                            @if (unreadCount > 0)
+                                            {
+                                                <span class="position-absolute top-0 end-0 badge bg-danger rounded-pill" style="font-size: 0.7rem;">@unreadCount</span>
+                                            }
+                                        </div>
+
+                                        <!-- CHAT INFO -->
+                                        <div class="flex-grow-1 min-width-0">
+                                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                                <h6 class="fw-bold mb-0 text-truncate">@project.Name</h6>
+                                                @if (lastMessage != null)
+                                                {
+                                                    <small class="text-muted ms-2 flex-shrink-0">
+                                                        @{
+                                                            var timeDiff = DateTime.Now - lastMessage.SentAt;
+                                                            if (timeDiff.TotalMinutes < 1) { <text>Только что</text> }
+                                                            else if (timeDiff.TotalMinutes < 60) { <text>@((int)timeDiff.TotalMinutes) мин</text> }
+                                                            else if (timeDiff.TotalHours < 24) { <text>@((int)timeDiff.TotalHours) ч</text> }
+                                                            else { <text>@lastMessage.SentAt.ToString("dd.MM")</text> }
+                                                        }
+                                                    </small>
+                                                }
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2 text-muted small">
+                                                <i class="fas fa-user" style="font-size: 0.75rem;"></i>
+                                                <span class="text-truncate">
+                                                    @if (lastMessage?.SenderId == currentUserId)
+                                                    {
+                                                        <text>Вы: </text>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>@(otherUser?.FullName ?? "Пользователь"): </text>
+                                                    }
+                                                    @(lastMessage?.Message?.Length > 50 ? lastMessage.Message.Substring(0, 50) + "..." : lastMessage?.Message)
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- ARROW -->
+                                        <div class="flex-shrink-0 text-muted">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </div>
+                                    </div>
                                 </div>
-                            }
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between">
-                                <h6>@project.Name</h6>
-                                @if (lastMessage != null)
-                                {
-                                    <small>@lastMessage.SentAt.ToString("HH:mm")</small>
-                                }
                             </div>
-                            <p class="mb-0 text-muted">
-                                @(otherUser?.FullName ?? "Пользователь"):
-                                @lastMessage?.Message
-                            </p>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- SIDEBAR INFO -->
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="card-modern card">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-info-circle me-2 text-primary"></i>Советы
+                        </h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="p-3 rounded-2 bg-light">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-lightbulb me-1" style="color: #f59e0b;"></i>
+                                    <strong>Быстрое общение</strong>
+                                </small>
+                                <small class="text-muted">Отправляйте сообщения прямо из чата</small>
+                            </div>
+                            <div class="p-3 rounded-2 bg-light">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-bell me-1" style="color: #667eea;"></i>
+                                    <strong>Уведомления</strong>
+                                </small>
+                                <small class="text-muted">Получайте уведомления о новых сообщениях</small>
+                            </div>
+                            <div class="p-3 rounded-2 bg-light">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-shield-alt me-1" style="color: #10b981;"></i>
+                                    <strong>Безопасность</strong>
+                                </small>
+                                <small class="text-muted">Все сообщения защищены и приватны</small>
+                            </div>
                         </div>
                     </div>
-                </a>
-            }
+                </div>
+            </div>
         </div>
     }
 </div>
+
+<style>
+    .chat-card {
+        transition: all 0.3s ease;
+    }
+
+    .chat-card:hover {
+        transform: translateX(4px);
+    }
+
+    .min-width-0 {
+        min-width: 0;
+    }
+
+    .bg-gradient {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+</style>

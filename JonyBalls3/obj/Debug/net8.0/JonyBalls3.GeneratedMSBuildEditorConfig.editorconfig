@@ -9,135 +9,139 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = JonyBalls3
 build_property.RootNamespace = JonyBalls3
-build_property.ProjectDir = \\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3\
+build_property.ProjectDir = /home/ubuntu/Jony/JonyBalls3/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = \\mcb.local\RoamingProfiles$\StudentsData\1238006\Desktop\проект УП\JonyBalls3\JonyBalls3\JonyBalls3
+build_property.MSBuildProjectDirectory = /home/ubuntu/Jony/JonyBalls3
 build_property._RazorSourceGeneratorDebug = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Account/BecomeContractor.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxCZWNvbWVDb250cmFjdG9yLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Account/BecomeContractor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9CZWNvbWVDb250cmFjdG9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Account/Login.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Account/Register.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Calculator/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FsY3VsYXRvclxJbmRleC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Calculator/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FsY3VsYXRvci9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Calculator/Result.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FsY3VsYXRvclxSZXN1bHQuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Calculator/Result.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FsY3VsYXRvci9SZXN1bHQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Chat/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxJbmRleC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Chat/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhdC9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Chat/Project.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxQcm9qZWN0LmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Chat/Project.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhdC9Qcm9qZWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Contractors/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhY3RvcnNcRGV0YWlscy5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Contractors/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RvcnMvRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Contractors/EditProfile.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhY3RvcnNcRWRpdFByb2ZpbGUuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Contractors/EditProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RvcnMvRWRpdFByb2ZpbGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Contractors/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhY3RvcnNcSW5kZXguY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Contractors/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RvcnMvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Contractors/ManagePortfolio.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhY3RvcnNcTWFuYWdlUG9ydGZvbGlvLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Contractors/ManagePortfolio.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RvcnMvTWFuYWdlUG9ydGZvbGlvLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Contractors/MyProfile.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhY3RvcnNcTXlQcm9maWxlLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Contractors/MyProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RvcnMvTXlQcm9maWxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Home/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Home/Privacy.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Invitations/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52aXRhdGlvbnNcSW5kZXguY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Invitations/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW52aXRhdGlvbnMvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Profile/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxFZGl0LmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Notifications/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTm90aWZpY2F0aW9ucy9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Profile/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Profile/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZmlsZS9FZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/ProjectStage/_StageDetails.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdFN0YWdlXF9TdGFnZURldGFpbHMuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZmlsZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQ3JlYXRlLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRGVsZXRlLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRGV0YWlscy5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRWRpdC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/FindContractor.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRmluZENvbnRyYWN0b3IuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/FindContractor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvRmluZENvbnRyYWN0b3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcSW5kZXguY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Projects/_UploadStagePhoto.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcX1VwbG9hZFN0YWdlUGhvdG8uY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Projects/_UploadStagePhoto.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdHMvX1VwbG9hZFN0YWdlUGhvdG8uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Review/ForContractor.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV2aWV3XEZvckNvbnRyYWN0b3IuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/ProjectStage/_StageDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvamVjdFN0YWdlL19TdGFnZURldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Shared/Error.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Review/ForContractor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV2aWV3L0ZvckNvbnRyYWN0b3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Shared/_ValidationScriptsPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+[/home/ubuntu/Jony/JonyBalls3/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/_ViewImports.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+[/home/ubuntu/Jony/JonyBalls3/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/_ViewStart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+[/home/ubuntu/Jony/JonyBalls3/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[//mcb.local/RoamingProfiles$/StudentsData/1238006/Desktop/проект УП/JonyBalls3/JonyBalls3/JonyBalls3/Views/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = b-j6plfjxg72
+[/home/ubuntu/Jony/JonyBalls3/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ubuntu/Jony/JonyBalls3/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-nf1blljwj8

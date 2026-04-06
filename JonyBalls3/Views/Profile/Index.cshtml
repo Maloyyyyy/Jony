@@ -1,46 +1,237 @@
-﻿@model JonyBalls3.Models.User
+@model JonyBalls3.Models.User
 @{
     ViewData["Title"] = "Мой профиль";
 }
 
-<div class="container py-4">
+<div class="container py-5">
+    <!-- SUCCESS MESSAGE -->
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     }
 
-    <div class="row">
+    <!-- PROFILE HEADER -->
+    <div class="row g-4 mb-5">
+        <!-- AVATAR CARD -->
         <div class="col-md-4">
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-body text-center p-4">
-                    @if (!string.IsNullOrEmpty(Model.AvatarUrl))
-                    {
-                        <img src="@Model.AvatarUrl" class="rounded-circle mb-3" width="150" height="150">
-                    }
-                    else
-                    {
-                        <div class="rounded-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:150px;height:150px;">
-                            <i class="fas fa-user fa-5x"></i>
+            <div class="card-modern card text-center">
+                <div class="card-body p-5">
+                    <!-- AVATAR -->
+                    <div class="mb-4">
+                        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                        {
+                            <img src="@Model.AvatarUrl" class="rounded-circle shadow-lg" width="150" height="150" alt="Avatar">
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-gradient text-white mx-auto d-flex align-items-center justify-content-center shadow-lg" style="width:150px;height:150px;font-size:3rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- NAME & EMAIL -->
+                    <h3 class="fw-bold mb-1">@Model.FirstName @Model.LastName</h3>
+                    <p class="text-muted mb-4">@Model.Email</p>
+
+                    <!-- EDIT BUTTON -->
+                    <a asp-action="Edit" class="btn btn-gradient btn-lg w-100">
+                        <i class="fas fa-edit me-2"></i>Редактировать профиль
+                    </a>
+                </div>
+            </div>
+
+            <!-- QUICK STATS -->
+            <div class="card-modern card mt-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-chart-pie me-2" style="color: var(--primary);"></i>Статистика
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-light">
+                            <small class="text-muted">Аккаунт создан</small>
+                            <strong class="text-primary">@Model.CreatedAt.ToString("dd.MM.yyyy")</strong>
                         </div>
-                    }
-                    <h4>@Model.FirstName @Model.LastName</h4>
-                    <p class="text-muted">@Model.Email</p>
-                    <a asp-action="Edit" class="btn btn-primary">Редактировать</a>
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-light">
+                            <small class="text-muted">Статус</small>
+                            <span class="badge bg-success">Активен</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- INFORMATION CARD -->
         <div class="col-md-8">
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-header bg-white">
-                    <h5>Личная информация</h5>
+            <div class="card-modern card">
+                <div class="card-header border-bottom p-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-info-circle me-2" style="color: var(--primary);"></i>Личная информация
+                    </h5>
                 </div>
-                <div class="card-body">
-                    <p><strong>Телефон:</strong> @Model.PhoneNumber</p>
-                    <p><strong>Город:</strong> @Model.Location</p>
-                    <p><strong>Дата рождения:</strong> @Model.BirthDate?.ToString("dd.MM.yyyy")</p>
-                    <p><strong>О себе:</strong> @Model.Bio</p>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <!-- PHONE -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-2 glass-effect">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-phone me-1" style="color: var(--primary);"></i>
+                                    Телефон
+                                </small>
+                                <strong class="text-primary">@(Model.PhoneNumber ?? "Не указан")</strong>
+                            </div>
+                        </div>
+
+                        <!-- LOCATION -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-2 glass-effect">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-map-marker-alt me-1" style="color: var(--success);"></i>
+                                    Город
+                                </small>
+                                <strong class="text-success">@(Model.Location ?? "Не указан")</strong>
+                            </div>
+                        </div>
+
+                        <!-- BIRTH DATE -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-2 glass-effect">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-birthday-cake me-1" style="color: var(--warning);"></i>
+                                    Дата рождения
+                                </small>
+                                <strong class="text-warning">@(Model.BirthDate?.ToString("dd.MM.yyyy") ?? "Не указана")</strong>
+                            </div>
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-2 glass-effect">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-envelope me-1" style="color: var(--info);"></i>
+                                    Email
+                                </small>
+                                <strong class="text-info">@Model.Email</strong>
+                            </div>
+                        </div>
+
+                        <!-- BIO -->
+                        <div class="col-12">
+                            <div class="p-3 rounded-2 glass-effect">
+                                <small class="text-muted d-block mb-2">
+                                    <i class="fas fa-quote-left me-1" style="color: var(--primary);"></i>
+                                    О себе
+                                </small>
+                                <p class="mb-0 text-muted">
+                                    @if (string.IsNullOrEmpty(Model.Bio))
+                                    {
+                                        <em>Расскажите о себе...</em>
+                                    }
+                                    else
+                                    {
+                                        @Model.Bio
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADDITIONAL SECTIONS -->
+    <div class="row g-4">
+        <!-- ACCOUNT SETTINGS -->
+        <div class="col-md-6">
+            <div class="card-modern card">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-lock me-2" style="color: var(--primary);"></i>Безопасность
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fas fa-key me-2"></i>Изменить пароль
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fas fa-shield-alt me-2"></i>Двухфакторная аутентификация
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fas fa-history me-2"></i>История входов
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS SETTINGS -->
+        <div class="col-md-6">
+            <div class="card-modern card">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-bell me-2" style="color: var(--primary);"></i>Уведомления
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+                            <label class="form-check-label" for="emailNotif">
+                                Email уведомления
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chatNotif" checked>
+                            <label class="form-check-label" for="chatNotif">
+                                Уведомления о сообщениях
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="projectNotif" checked>
+                            <label class="form-check-label" for="projectNotif">
+                                Уведомления о проектах
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .glass-effect {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+    }
+
+    .glass-effect:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--primary);
+    }
+
+    .btn-glass {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .form-check-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
