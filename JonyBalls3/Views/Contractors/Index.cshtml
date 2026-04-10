@@ -21,7 +21,7 @@
                         <option value="">— Все специализации —</option>
                         @foreach (var spec in specializations)
                         {
-                            <option value="@spec" @(ViewBag.Specialization == spec ? "selected" : "")>@spec</option>
+                            <option value="@spec" selected="@(ViewBag.Specialization == spec ? "selected" : null)">@spec</option>
                         }
                     </select>
                 </div>
@@ -33,10 +33,10 @@
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Сортировка</label>
                     <select name="sortBy" class="form-select">
-                        <option value="rating"    @(ViewBag.SortBy == "rating"    ? "selected" : "")>По рейтингу</option>
-                        <option value="rate_asc"  @(ViewBag.SortBy == "rate_asc"  ? "selected" : "")>Ставка: дешевле</option>
-                        <option value="rate_desc" @(ViewBag.SortBy == "rate_desc" ? "selected" : "")>Ставка: дороже</option>
-                        <option value="exp"       @(ViewBag.SortBy == "exp"       ? "selected" : "")>По опыту</option>
+                        <option value="rating"    selected="@(ViewBag.SortBy == "rating"    ? "selected" : null)">По рейтингу</option>
+                        <option value="rate_asc"  selected="@(ViewBag.SortBy == "rate_asc"  ? "selected" : null)">Ставка: дешевле</option>
+                        <option value="rate_desc" selected="@(ViewBag.SortBy == "rate_desc" ? "selected" : null)">Ставка: дороже</option>
+                        <option value="exp"       selected="@(ViewBag.SortBy == "exp"       ? "selected" : null)">По опыту</option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end gap-2">

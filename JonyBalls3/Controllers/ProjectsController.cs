@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using JonyBalls3.Data;
+using System.Linq;
 
 namespace JonyBalls3.Controllers
 {
@@ -259,265 +260,145 @@ namespace JonyBalls3.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _projectService.DeleteProjectAsync(id);
-            TempData["Success"] = "Проект удалён";
+            TempData["Success"] = "Проект удален";
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Projects/AddStage
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddStage(ProjectStage stage)
+        public async Task<IActionResult> AddStage(int projectId, string name, string description, decimal budget)
         {
-            try
-            {
-                // Ручная валидация вместо ModelState
-                if (string.IsNullOrWhiteSpace(stage.Name))
-                    return Json(new { success = false, message = "Название этапа обязательно" });
-                if (stage.ProjectId <= 0)
-                    return Json(new { success = false, message = "Некорректный ID проекта" });
-                if (stage.Budget < 0)
-                    return Json(new { success = false, message = "Бюджет не может быть отрицательным" });
+            if (string.IsNullOrWhiteSpace(name))
+                return Json(new { success = false, message = "Название этапа обязательно" });
+            if (budget < 0)
+                return Json(new { success = false, message = "Бюджет не может быть отрицательным" });
 
-                // Устанавливаем порядок автоматически
-                var existingCount = await _context.ProjectStages
-                    .CountAsync(s => s.ProjectId == stage.ProjectId);
-                stage.Order = existingCount + 1;
-                stage.Status = StageStatus.NotStarted;
-                stage.Progress = 0;
-                stage.Spent = 0;
-
-                await _projectService.AddStageAsync(stage);
-                await _projectService.UpdateProjectProgressAsync(stage.ProjectId);
-                return Json(new { success = true, message = "Этап добавлен" });
-            }
-            catch (Exception ex)
+            var stage = new ProjectStage
             {
-                _logger.LogError(ex, "Ошибка при добавлении этапа");
-                return Json(new { success = false, message = "Ошибка сервера: " + ex.Message });
-            }
+                ProjectId = projectId,
+                Name = name,
+                Description = description ?? "",
+                Budget = budget,
+                Status = StageStatus.NotStarted,
+                Progress = 0,
+                Spent = 0,
+                Order = (await _context.ProjectStages.Where(s => s.ProjectId == projectId).CountAsync()) + 1
+            };
+
+            await _projectService.AddStageAsync(stage);
+            return Json(new { success = true });
         }
 
-        // GET: Projects/FindContractor/5
-        public async Task<IActionResult> FindContractor(int id)
-        {
-            var project = await _projectService.GetProjectByIdAsync(id);
-            if (project == null)
-                return NotFound();
-
-            // Ищем всех подрядчиков, сортируем по рейтингу
-            var contractors = await _contractorService.SearchContractorsAsync(null, null);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            contractors = contractors
-                .Where(c => c.UserId != userId)
-                .OrderByDescending(c => c.Rating)
-                .ToList();
-
-            ViewBag.ProjectId = id;
-            return View(contractors);
-        }
-
-        // POST: Projects/InviteContractor
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> InviteContractor(int projectId, int contractorId, string message)
+        public async Task<IActionResult> AddExpense(AddExpenseViewModel model)
         {
-            try
+            if (model.Amount <= 0)
+                return Json(new { success = false, message = "Сумма должна быть больше 0" });
+
+            var expense = new Expense
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var project = await _projectService.GetProjectByIdAsync(projectId);
-                if (project == null)
-                    return Json(new { success = false, message = "Проект не найден" });
+                ProjectId = model.ProjectId,
+                StageId = model.StageId,
+                Title = model.Title ?? "Расход",
+                Amount = model.Amount,
+                Category = model.Category,
+                Date = DateTime.Now,
+                Description = model.Description ?? ""
+            };
 
-                if (project.UserId != userId)
-                    return Json(new { success = false, message = "Нет доступа" });
-
-                // Запрет приглашать самого себя
-                var contractorProfile = await _contractorService.GetContractorByIdAsync(contractorId);
-                if (contractorProfile != null && contractorProfile.UserId == userId)
-                    return Json(new { success = false, message = "Нельзя пригласить самого себя в проект" });
-
-                // Проверяем нет ли уже приглашения
-                var hasExisting = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
-                if (hasExisting)
-                    return Json(new { success = false, message = "Приглашение уже отправлено" });
-
-                await _invitationService.CreateInvitationAsync(projectId, contractorId, message ?? "", userId);
-                return Json(new { success = true, message = "Приглашение отправлено подрядчику" });
-            }
-            catch (Exception ex)
+            if (model.ReceiptFile != null && model.ReceiptFile.Length > 0)
             {
-                _logger.LogError(ex, "Ошибка отправки приглашения");
-                return Json(new { success = false, message = "Ошибка сервера" });
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptFile.FileName);
+                var filePath = Path.Combine(_env.WebRootPath, "uploads/receipts", fileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ReceiptFile.CopyToAsync(stream);
+                }
+                expense.ReceiptUrl = "/uploads/receipts/" + fileName;
             }
+
+            _context.Expenses.Add(expense);
+            await _context.SaveChangesAsync();
+
+            // Обновляем потраченную сумму этапа и проекта
+            var stage = await _context.ProjectStages.FindAsync(model.StageId);
+            if (stage != null)
+            {
+                stage.Spent += model.Amount;
+                await _context.SaveChangesAsync();
+            }
+
+            var project = await _context.Projects.FindAsync(model.ProjectId);
+            if (project != null)
+            {
+                project.Spent += model.Amount;
+                await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true, message = "Расход успешно добавлен" });
         }
 
-        // POST: Projects/UpdateStageProgress
+        [HttpPost]
+        public async Task<IActionResult> UploadStagePhoto(int stageId, string description, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Файл не выбран" });
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(_env.WebRootPath, "uploads/stages", fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var photo = new StagePhoto
+            {
+                StageId = stageId,
+                ImageUrl = "/uploads/stages/" + fileName,
+                Description = description ?? "",
+                UploadedAt = DateTime.Now
+            };
+
+            _context.StagePhotos.Add(photo);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Фото успешно загружено" });
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdateStageProgress(int stageId, int progress, decimal spent)
         {
-            var stage = await _projectService.GetStageByIdAsync(stageId);
-            if (stage == null)
-                return NotFound();
+            var stage = await _context.ProjectStages.Include(s => s.Project).FirstOrDefaultAsync(s => s.Id == stageId);
+            if (stage == null) return Json(new { success = false, message = "Этап не найден" });
 
-            var wasCompleted = stage.Status == StageStatus.Completed;
             stage.Progress = progress;
-            stage.Spent = spent;
+            if (progress >= 100) stage.Status = StageStatus.Completed;
+            else if (progress > 0) stage.Status = StageStatus.InProgress;
 
-            if (progress == 100)
-            {
-                stage.Status = StageStatus.Completed;
-                stage.ActualEndDate = DateTime.Now;
-            }
-            else if (progress > 0)
-            {
-                stage.Status = StageStatus.InProgress;
-                if (!stage.ActualStartDate.HasValue)
-                    stage.ActualStartDate = DateTime.Now;
-            }
+            await _context.SaveChangesAsync();
 
-            await _projectService.UpdateStageAsync(stage);
-            await _projectService.UpdateProjectProgressAsync(stage.ProjectId);
-
-            // Уведомление при завершении этапа
-            if (progress == 100 && !wasCompleted && stage.Project != null)
+            // Обновляем общий прогресс проекта
+            var allStages = await _context.ProjectStages.Where(s => s.ProjectId == stage.ProjectId).ToListAsync();
+            if (allStages.Any())
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                try
-                {
-                    await _notificationService.NotifyStageCompletedAsync(
-                        stage.Project.UserId, stage.Name, stage.Project.Name, stage.ProjectId);
-                }
-                catch { }
+                stage.Project.Progress = (int)allStages.Average(s => s.Progress);
+                await _context.SaveChangesAsync();
             }
 
             return Json(new { success = true });
         }
 
-        // POST: Projects/AddExpense
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddExpense(AddExpenseViewModel model)
-        {
-            // Убираем необязательные поля из валидации
-            ModelState.Remove("ReceiptImage");
-
-            if (string.IsNullOrWhiteSpace(model.Name))
-                return Json(new { success = false, message = "Название расхода обязательно" });
-            if (model.Amount <= 0)
-                return Json(new { success = false, message = "Сумма должна быть больше 0" });
-
-            try
-            {
-                ExpenseCategory category;
-                if (!Enum.TryParse<ExpenseCategory>(model.Category, out category))
-                    category = ExpenseCategory.Other;
-
-                var expense = new Expense
-                {
-                    ProjectId = model.ProjectId,
-                    StageId = model.StageId,
-                    Name = model.Name,
-                    Description = model.Description ?? "",
-                    Amount = model.Amount,
-                    Category = category,
-                    Date = model.Date == default ? DateTime.Today : model.Date
-                };
-
-                if (model.ReceiptImage != null && model.ReceiptImage.Length > 0)
-                {
-                    if (model.ReceiptImage.Length > 5 * 1024 * 1024)
-                        return Json(new { success = false, message = "Размер файла не должен превышать 5 МБ" });
-
-                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/expenses");
-                    Directory.CreateDirectory(uploadsFolder);
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptImage.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                        await model.ReceiptImage.CopyToAsync(stream);
-                    expense.ReceiptUrl = "/uploads/expenses/" + fileName;
-                }
-
-                _context.Expenses.Add(expense);
-                await _context.SaveChangesAsync();
-
-                // Пересчитываем Spent из базы
-                var project = await _context.Projects.FindAsync(model.ProjectId);
-                if (project != null)
-                {
-                    project.Spent = await _context.Expenses
-                        .Where(e => e.ProjectId == model.ProjectId)
-                        .SumAsync(e => e.Amount);
-                    await _context.SaveChangesAsync();
-                }
-
-                return Json(new { success = true, message = "Расход добавлен" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка добавления расхода");
-                return Json(new { success = false, message = "Ошибка сервера" });
-            }
-        }
-
-        // POST: Projects/UploadStagePhoto
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadStagePhoto(StagePhotoViewModel model)
-        {
-            if (model.Image == null || model.Image.Length == 0)
-                return Json(new { success = false, message = "Не выбрано фото" });
-
-            if (model.Image.Length > 5 * 1024 * 1024)
-                return Json(new { success = false, message = "Размер файла не должен превышать 5 МБ" });
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-            var ext = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(ext))
-                return Json(new { success = false, message = "Допустимые форматы: JPG, PNG, GIF, WEBP" });
-
-            try
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/stages");
-                Directory.CreateDirectory(uploadsFolder);
-                var fileName = Guid.NewGuid().ToString() + ext;
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await model.Image.CopyToAsync(stream);
-
-                var photo = new StagePhoto
-                {
-                    StageId = model.StageId,
-                    ImageUrl = "/uploads/stages/" + fileName,
-                    Description = model.Description ?? "",
-                    UploadedAt = DateTime.Now,
-                    UploadedById = userId
-                };
-                _context.StagePhotos.Add(photo);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Фото загружено", imageUrl = photo.ImageUrl, description = photo.Description });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка загрузки фото");
-                return Json(new { success = false, message = "Ошибка сервера" });
-            }
-        } }
-
-        // GET: Projects/GetUserProjects
         [HttpGet]
         public async Task<IActionResult> GetUserProjects()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var projects = await _projectService.GetUserProjectsAsync(userId);
-
-            var result = projects.Select(p => new {
-                id = p.Id,
-                name = p.Name,
-                status = p.Status.ToString()
-            });
-
-            return Json(result);
+            var projects = await _context.Projects
+                .Where(p => p.UserId == userId && p.Status != ProjectStatus.Completed && p.Status != ProjectStatus.Cancelled)
+                .Select(p => new { id = p.Id, name = p.Name })
+                .ToListAsync();
+            return Json(projects);
         }
     }
 }

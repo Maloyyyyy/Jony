@@ -24,11 +24,11 @@
                 <div class="col-md-3">
                     <select name="status" class="form-select">
                         <option value="">— Все статусы —</option>
-                        <option value="Planning"  @(ViewBag.Status == "Planning"  ? "selected" : "")>Планирование</option>
-                        <option value="Active"    @(ViewBag.Status == "Active"    ? "selected" : "")>Активный</option>
-                        <option value="Paused"    @(ViewBag.Status == "Paused"    ? "selected" : "")>Приостановлен</option>
-                        <option value="Completed" @(ViewBag.Status == "Completed" ? "selected" : "")>Завершён</option>
-                        <option value="Cancelled" @(ViewBag.Status == "Cancelled" ? "selected" : "")>Отменён</option>
+                        <option value="Planning"  selected="@(ViewBag.Status == "Planning" ? "selected" : null)">Планирование</option>
+                        <option value="Active"    selected="@(ViewBag.Status == "Active" ? "selected" : null)">Активный</option>
+                        <option value="Paused"    selected="@(ViewBag.Status == "Paused" ? "selected" : null)">Приостановлен</option>
+                        <option value="Completed" selected="@(ViewBag.Status == "Completed" ? "selected" : null)">Завершён</option>
+                        <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled" ? "selected" : null)">Отменён</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-2">
