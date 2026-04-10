@@ -1,55 +1,170 @@
-﻿@model JonyBalls3.Models.User
+@model JonyBalls3.Models.User
 @{
     ViewData["Title"] = "Редактирование профиля";
 }
-
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-header bg-white">
-                    <h4>Редактирование профиля</h4>
+        <div class="col-md-9">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:linear-gradient(135deg,#667eea,#764ba2);">
+                            <i class="fas fa-user-edit text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Редактирование профиля</h4>
+                            <small class="text-muted">Обновите вашу личную информацию</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <div class="card-body p-4">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mb-3">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Исправьте ошибки:</strong>
+                            <ul class="mb-0 mt-1">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data" id="profileEditForm">
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="Email" />
                         <input type="hidden" asp-for="AvatarUrl" />
-
-                        <div class="mb-3">
-                            <label asp-for="FirstName" class="form-label"></label>
-                            <input asp-for="FirstName" class="form-control" />
+                        <!-- AVATAR PREVIEW -->
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                                {
+                                    <img src="@Model.AvatarUrl" id="avatarPreview"
+                                         class="rounded-circle shadow" width="120" height="120"
+                                         alt="Фото профиля" style="object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <div id="avatarPreviewDefault"
+                                         class="rounded-circle text-white mx-auto d-flex align-items-center justify-content-center shadow"
+                                         style="width:120px;height:120px;font-size:2.5rem;background:linear-gradient(135deg,#667eea,#764ba2);">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <img src="" id="avatarPreview" class="rounded-circle shadow d-none"
+                                         width="120" height="120" alt="Фото профиля" style="object-fit:cover;" />
+                                }
+                                <label for="avatarFileInput"
+                                       class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle"
+                                       style="width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;"
+                                       title="Изменить фото">
+                                    <i class="fas fa-camera" style="font-size:0.75rem;"></i>
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <input type="file" name="avatarFile" id="avatarFileInput"
+                                       class="d-none" accept="image/jpeg,image/png,image/gif,image/webp" />
+                                <small class="text-muted d-block">Нажмите на значок камеры для смены фото</small>
+                                <small class="text-muted">Форматы: JPG, PNG, GIF, WEBP. Макс. 5 МБ</small>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="LastName" class="form-label"></label>
-                            <input asp-for="LastName" class="form-control" />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label fw-bold">Имя</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input asp-for="FirstName" class="form-control" placeholder="Ваше имя" maxlength="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label fw-bold">Фамилия</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input asp-for="LastName" class="form-control" placeholder="Ваша фамилия" maxlength="100" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="PhoneNumber" class="form-label">Телефон</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control bg-light" value="@Model.Email" readonly disabled />
+                                </div>
+                                <small class="text-muted">Email нельзя изменить</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label fw-bold">Телефон</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="+7 (999) 123-45-67" maxlength="20" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Location" class="form-label">Город</label>
-                            <input asp-for="Location" class="form-control" />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Location" class="form-label fw-bold">Город</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input asp-for="Location" class="form-control" placeholder="Москва" maxlength="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="BirthDate" class="form-label fw-bold">Дата рождения</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    <input asp-for="BirthDate" type="date" class="form-control"
+                                           max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="BirthDate" class="form-label">Дата рождения</label>
-                            <input asp-for="BirthDate" type="date" class="form-control" />
+                        <div class="mb-4">
+                            <label asp-for="Bio" class="form-label fw-bold">О себе</label>
+                            <textarea asp-for="Bio" class="form-control" rows="4"
+                                      placeholder="Расскажите о себе, своём опыте, интересах..."
+                                      maxlength="500"></textarea>
+                            <small class="text-muted">Максимум 500 символов</small>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Bio" class="form-label">О себе</label>
-                            <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-gradient flex-grow-1">
+                                <i class="fas fa-save me-2"></i>Сохранить изменения
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Отмена
+                            </a>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Фото профиля</label>
-                            <input type="file" name="avatarFile" class="form-control" accept="image/*" />
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        document.getElementById('avatarFileInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                toastr.error('Размер файла не должен превышать 5 МБ');
+                this.value = '';
+                return;
+            }
+            var allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowed.includes(file.type)) {
+                toastr.error('Допустимые форматы: JPG, PNG, GIF, WEBP');
+                this.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var preview = document.getElementById('avatarPreview');
+                var defaultDiv = document.getElementById('avatarPreviewDefault');
+                if (defaultDiv) defaultDiv.classList.add('d-none');
+                preview.src = ev.target.result;
+                preview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+}

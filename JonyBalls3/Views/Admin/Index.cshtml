@@ -1,0 +1,160 @@
+@model JonyBalls3.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Панель администратора";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color:#667eea;"><i class="fas fa-shield-alt me-2"></i>Панель администратора</h1>
+            <p class="text-muted mb-0">Управление платформой Jony</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Stats" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-chart-bar me-1"></i>Статистика
+            </a>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm text-center p-3" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <h2 class="fw-bold mb-0">@Model.TotalUsers</h2>
+                <small>Пользователей</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm text-center p-3" style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#fff;">
+                <i class="fas fa-hard-hat fa-2x mb-2"></i>
+                <h2 class="fw-bold mb-0">@Model.TotalContractors</h2>
+                <small>Подрядчиков</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm text-center p-3" style="background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;">
+                <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                <h2 class="fw-bold mb-0">@Model.TotalProjects</h2>
+                <small>Проектов (@Model.ActiveProjects активных)</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 rounded-4 shadow-sm text-center p-3" style="background:linear-gradient(135deg,#fa709a,#fee140);color:#fff;">
+                <i class="fas fa-ruble-sign fa-2x mb-2"></i>
+                <h2 class="fw-bold mb-0">@Model.TotalExpenses.ToString("N0")</h2>
+                <small>Расходов (₽)</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Быстрые ссылки -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <a asp-action="Users" class="card border-0 rounded-4 shadow-sm p-4 text-decoration-none d-flex align-items-center gap-3 admin-card">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:rgba(102,126,234,0.15);">
+                    <i class="fas fa-users" style="color:#667eea;font-size:1.3rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Управление пользователями</div>
+                    <small class="text-muted">Редактировать, блокировать, удалять</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Contractors" class="card border-0 rounded-4 shadow-sm p-4 text-decoration-none d-flex align-items-center gap-3 admin-card">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:rgba(67,233,123,0.15);">
+                    <i class="fas fa-hard-hat" style="color:#43e97b;font-size:1.3rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Управление подрядчиками</div>
+                    <small class="text-muted">Редактировать рейтинг, статус, удалять</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Projects" class="card border-0 rounded-4 shadow-sm p-4 text-decoration-none d-flex align-items-center gap-3 admin-card">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:50px;height:50px;background:rgba(79,172,254,0.15);">
+                    <i class="fas fa-project-diagram" style="color:#4facfe;font-size:1.3rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Управление проектами</div>
+                    <small class="text-muted">Просматривать, изменять статус, удалять</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Последние пользователи -->
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-user-plus me-2" style="color:#667eea;"></i>Последние регистрации</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr><th>Пользователь</th><th>Email</th><th>Дата</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.RecentUsers)
+                                {
+                                    <tr>
+                                        <td>@user.FirstName @user.LastName</td>
+                                        <td class="text-muted small">@user.Email</td>
+                                        <td class="text-muted small">@user.CreatedAt.ToString("dd.MM.yy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <a asp-action="Users" class="btn btn-outline-primary btn-sm w-100 mt-2">Все пользователи</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние проекты -->
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-folder-open me-2" style="color:#4facfe;"></i>Последние проекты</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr><th>Проект</th><th>Владелец</th><th>Бюджет</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var project in Model.RecentProjects)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" class="text-decoration-none fw-semibold">
+                                                @project.Name
+                                            </a>
+                                        </td>
+                                        <td class="text-muted small">@project.User?.Email</td>
+                                        <td class="text-muted small">@project.Budget.ToString("N0") ₽</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <a asp-action="Projects" class="btn btn-outline-primary btn-sm w-100 mt-2">Все проекты</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .admin-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .admin-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102,126,234,0.2) !important; }
+    </style>
+}

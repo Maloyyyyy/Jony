@@ -85,22 +85,19 @@ namespace JonyBalls3.Controllers
         {
             if (ModelState.IsValid)
             {
-                RepairType repairType;
-                switch (viewModel.RepairType)
+                RepairType repairType = (viewModel.RepairType ?? "") switch
                 {
-                    case "Косметический": repairType = RepairType.Cosmetic; break;
-                    case "Капитальный": repairType = RepairType.Capital; break;
-                    case "Дизайнерский": repairType = RepairType.Design; break;
-                    default: repairType = RepairType.Cosmetic; break;
-                }
-
+                    "Косметический" or "Cosmetic" => RepairType.Cosmetic,
+                    "Капитальный"   or "Capital"  => RepairType.Capital,
+                    "Дизайнерский"  or "Design"   => RepairType.Design,
+                    _                              => RepairType.Cosmetic
+                };
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                     return Challenge();
-
                 var project = new Project
                 {
-                    Name = viewModel.Name,
+                    Name = viewModel.Name ?? "",
                     Description = viewModel.Description ?? "",
                     Area = viewModel.Area,
                     RepairType = repairType,
@@ -128,6 +125,7 @@ namespace JonyBalls3.Controllers
                 foreach (var stage in stages)
                     await _projectService.AddStageAsync(stage);
 
+                TempData["Success"] = "Проект успешно создан";
                 return RedirectToAction(nameof(Details), new { id = project.Id });
             }
             return View(viewModel);
@@ -150,7 +148,14 @@ namespace JonyBalls3.Controllers
                 Budget = project.Budget,
                 StartDate = project.StartDate,
                 EndDate = project.EndDate,
-                Status = project.Status.ToString()
+                Status = project.Status switch {
+                    ProjectStatus.Planning  => "Планирование",
+                    ProjectStatus.Active    => "Активный",
+                    ProjectStatus.Paused    => "Приостановлен",
+                    ProjectStatus.Completed => "Завершён",
+                    ProjectStatus.Cancelled => "Отменён",
+                    _                       => project.Status.ToString()
+                }
             };
 
             return View(viewModel);
@@ -170,29 +175,26 @@ namespace JonyBalls3.Controllers
                 if (project == null)
                     return NotFound();
 
-                RepairType repairType;
-                switch (viewModel.RepairType)
+                RepairType repairType = (viewModel.RepairType ?? "") switch
                 {
-                    case "Косметический": repairType = RepairType.Cosmetic; break;
-                    case "Капитальный": repairType = RepairType.Capital; break;
-                    case "Дизайнерский": repairType = RepairType.Design; break;
-                    default: repairType = RepairType.Cosmetic; break;
-                }
-
-                ProjectStatus status;
-                switch (viewModel.Status)
+                    "Косметический" or "Cosmetic" => RepairType.Cosmetic,
+                    "Капитальный"   or "Capital"  => RepairType.Capital,
+                    "Дизайнерский"  or "Design"   => RepairType.Design,
+                    _                              => RepairType.Cosmetic
+                };
+                ProjectStatus status = (viewModel.Status ?? "") switch
                 {
-                    case "Планирование": status = ProjectStatus.Planning; break;
-                    case "Активный": status = ProjectStatus.Active; break;
-                    case "Приостановлен": status = ProjectStatus.Paused; break;
-                    case "Завершен": status = ProjectStatus.Completed; break;
-                    case "Отменен": status = ProjectStatus.Cancelled; break;
-                    default: status = ProjectStatus.Planning; break;
-                }
+                    "Планирование"              => ProjectStatus.Planning,
+                    "Активный"                  => ProjectStatus.Active,
+                    "Приостановлен"             => ProjectStatus.Paused,
+                    "Завершён" or "Завершен"    => ProjectStatus.Completed,
+                    "Отменён"  or "Отменен"     => ProjectStatus.Cancelled,
+                    _                            => ProjectStatus.Planning
+                };
 
                 var oldStatus = project.Status;
 
-                project.Name = viewModel.Name;
+                project.Name = viewModel.Name ?? "";
                 project.Description = viewModel.Description ?? "";
                 project.Area = viewModel.Area;
                 project.RepairType = repairType;
@@ -236,6 +238,7 @@ namespace JonyBalls3.Controllers
                     }
                 }
 
+                TempData["Success"] = "Проект обновлён";
                 return RedirectToAction(nameof(Details), new { id });
             }
             return View(viewModel);
@@ -256,6 +259,7 @@ namespace JonyBalls3.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _projectService.DeleteProjectAsync(id);
+            TempData["Success"] = "Проект удалён";
             return RedirectToAction(nameof(Index));
         }
 
@@ -266,11 +270,21 @@ namespace JonyBalls3.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                    return Json(new { success = false, message = string.Join(", ", errors) });
-                }
+                // Ручная валидация вместо ModelState
+                if (string.IsNullOrWhiteSpace(stage.Name))
+                    return Json(new { success = false, message = "Название этапа обязательно" });
+                if (stage.ProjectId <= 0)
+                    return Json(new { success = false, message = "Некорректный ID проекта" });
+                if (stage.Budget < 0)
+                    return Json(new { success = false, message = "Бюджет не может быть отрицательным" });
+
+                // Устанавливаем порядок автоматически
+                var existingCount = await _context.ProjectStages
+                    .CountAsync(s => s.ProjectId == stage.ProjectId);
+                stage.Order = existingCount + 1;
+                stage.Status = StageStatus.NotStarted;
+                stage.Progress = 0;
+                stage.Spent = 0;
 
                 await _projectService.AddStageAsync(stage);
                 await _projectService.UpdateProjectProgressAsync(stage.ProjectId);
@@ -279,7 +293,7 @@ namespace JonyBalls3.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при добавлении этапа");
-                return Json(new { success = false, message = "Ошибка сервера" });
+                return Json(new { success = false, message = "Ошибка сервера: " + ex.Message });
             }
         }
 
@@ -290,12 +304,14 @@ namespace JonyBalls3.Controllers
             if (project == null)
                 return NotFound();
 
-            var contractors = await _contractorService.SearchContractorsAsync(project.RepairType.ToString(), null);
-            
-            // Скрываем самого себя из списка
+            // Ищем всех подрядчиков, сортируем по рейтингу
+            var contractors = await _contractorService.SearchContractorsAsync(null, null);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            contractors = contractors.Where(c => c.UserId != userId).ToList();
-            
+            contractors = contractors
+                .Where(c => c.UserId != userId)
+                .OrderByDescending(c => c.Rating)
+                .ToList();
+
             ViewBag.ProjectId = id;
             return View(contractors);
         }
@@ -382,43 +398,57 @@ namespace JonyBalls3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddExpense(AddExpenseViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-            }
+            // Убираем необязательные поля из валидации
+            ModelState.Remove("ReceiptImage");
+
+            if (string.IsNullOrWhiteSpace(model.Name))
+                return Json(new { success = false, message = "Название расхода обязательно" });
+            if (model.Amount <= 0)
+                return Json(new { success = false, message = "Сумма должна быть больше 0" });
 
             try
             {
+                ExpenseCategory category;
+                if (!Enum.TryParse<ExpenseCategory>(model.Category, out category))
+                    category = ExpenseCategory.Other;
+
                 var expense = new Expense
                 {
                     ProjectId = model.ProjectId,
                     StageId = model.StageId,
                     Name = model.Name,
-                    Description = model.Description,
+                    Description = model.Description ?? "",
                     Amount = model.Amount,
-                    Category = Enum.Parse<ExpenseCategory>(model.Category),
-                    Date = model.Date
+                    Category = category,
+                    Date = model.Date == default ? DateTime.Today : model.Date
                 };
 
                 if (model.ReceiptImage != null && model.ReceiptImage.Length > 0)
                 {
+                    if (model.ReceiptImage.Length > 5 * 1024 * 1024)
+                        return Json(new { success = false, message = "Размер файла не должен превышать 5 МБ" });
+
                     var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/expenses");
                     Directory.CreateDirectory(uploadsFolder);
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptImage.FileName);
                     var filePath = Path.Combine(uploadsFolder, fileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
                         await model.ReceiptImage.CopyToAsync(stream);
-                    }
                     expense.ReceiptUrl = "/uploads/expenses/" + fileName;
                 }
 
                 _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
 
-                var project = await _projectService.GetProjectByIdAsync(model.ProjectId);
-                project.Spent += expense.Amount;
-                await _projectService.UpdateProjectAsync(project);
+                // Пересчитываем Spent из базы
+                var project = await _context.Projects.FindAsync(model.ProjectId);
+                if (project != null)
+                {
+                    project.Spent = await _context.Expenses
+                        .Where(e => e.ProjectId == model.ProjectId)
+                        .SumAsync(e => e.Amount);
+                    await _context.SaveChangesAsync();
+                }
 
                 return Json(new { success = true, message = "Расход добавлен" });
             }
@@ -434,41 +464,45 @@ namespace JonyBalls3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadStagePhoto(StagePhotoViewModel model)
         {
-            if (!ModelState.IsValid || model.Image == null)
+            if (model.Image == null || model.Image.Length == 0)
                 return Json(new { success = false, message = "Не выбрано фото" });
+
+            if (model.Image.Length > 5 * 1024 * 1024)
+                return Json(new { success = false, message = "Размер файла не должен превышать 5 МБ" });
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var ext = Path.GetExtension(model.Image.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(ext))
+                return Json(new { success = false, message = "Допустимые форматы: JPG, PNG, GIF, WEBP" });
 
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/stages");
                 Directory.CreateDirectory(uploadsFolder);
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
+                var fileName = Guid.NewGuid().ToString() + ext;
                 var filePath = Path.Combine(uploadsFolder, fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
-                {
                     await model.Image.CopyToAsync(stream);
-                }
 
                 var photo = new StagePhoto
                 {
                     StageId = model.StageId,
                     ImageUrl = "/uploads/stages/" + fileName,
-                    Description = model.Description,
+                    Description = model.Description ?? "",
                     UploadedAt = DateTime.Now,
                     UploadedById = userId
                 };
-
                 _context.StagePhotos.Add(photo);
                 await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Фото загружено" });
+                return Json(new { success = true, message = "Фото загружено", imageUrl = photo.ImageUrl, description = photo.Description });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка загрузки фото");
                 return Json(new { success = false, message = "Ошибка сервера" });
             }
-        }
+        } }
 
         // GET: Projects/GetUserProjects
         [HttpGet]

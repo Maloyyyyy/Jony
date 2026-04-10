@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace JonyBalls3.Models
 {
@@ -8,23 +8,25 @@ namespace JonyBalls3.Models
 
         [Required(ErrorMessage = "Название проекта обязательно")]
         [Display(Name = "Название проекта")]
-        public string Name { get; set; }
+        [StringLength(200, ErrorMessage = "Название не должно превышать 200 символов")]
+        public string? Name { get; set; }
 
         [Display(Name = "Описание")]
-        public string Description { get; set; }
+        [StringLength(2000, ErrorMessage = "Описание не должно превышать 2000 символов")]
+        public string? Description { get; set; }
 
         [Required(ErrorMessage = "Площадь обязательна")]
         [Display(Name = "Площадь (м²)")]
-        [Range(1, 1000, ErrorMessage = "Площадь должна быть от 1 до 1000 м²")]
+        [Range(1, 10000, ErrorMessage = "Площадь должна быть от 1 до 10000 м²")]
         public decimal Area { get; set; }
 
         [Required(ErrorMessage = "Тип ремонта обязателен")]
         [Display(Name = "Тип ремонта")]
-        public string RepairType { get; set; }
+        public string? RepairType { get; set; }
 
         [Required(ErrorMessage = "Бюджет обязателен")]
         [Display(Name = "Бюджет (руб.)")]
-        [Range(1000, 10000000, ErrorMessage = "Бюджет должен быть от 1 000 до 10 000 000 руб.")]
+        [Range(100, 100000000, ErrorMessage = "Бюджет должен быть от 100 до 100 000 000 руб.")]
         public decimal Budget { get; set; }
 
         [Display(Name = "Дата начала")]

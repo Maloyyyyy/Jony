@@ -10,19 +10,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <link rel="stylesheet" href="~/css/modern-design.css" />
     <style>
-        /* Override Bootstrap defaults */
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        
+        main {
+            flex: 1;
+        }
         .container {
             max-width: 1200px;
         }
-        
-        /* Notification dropdown custom styles */
+        /* Компактный футер */
+        footer.site-footer {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 1rem 0;
+            font-size: 0.8rem;
+            position: static;
+        }
+        footer.site-footer a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+        footer.site-footer a:hover {
+            color: #fff;
+        }
+        /* Notification dropdown */
         .notification-dropdown {
-            width: 380px;
-            max-height: 500px;
+            width: 360px;
+            max-height: 480px;
             overflow-y: auto;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -30,22 +48,19 @@
             border-radius: 1rem;
             box-shadow: var(--shadow-xl);
         }
-        
         .notification-item-dd {
             border-left: 3px solid transparent;
             transition: all 0.2s ease;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
         }
-        
         .notification-item-dd.unread {
             border-left-color: var(--primary);
             background: rgba(102, 126, 234, 0.05);
         }
-        
         .notification-item-dd:hover {
             background: rgba(102, 126, 234, 0.1);
-            transform: translateX(4px);
         }
+        /* Убираем все browser alert/confirm */
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -98,7 +113,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notifDropdown">
                                 <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                                    <span class="fw-bold">Уведомления</span>
+                                    <span class="fw-bold small">Уведомления</span>
                                     <div class="d-flex gap-2">
                                         <button class="btn btn-sm btn-link text-muted p-0" id="markAllReadBtn" title="Прочитать все">
                                             <i class="fas fa-check-double"></i>
@@ -109,7 +124,7 @@
                                     </div>
                                 </div>
                                 <div id="notifList">
-                                    <div class="text-center text-muted py-4 px-3">
+                                    <div class="text-center text-muted py-3 px-3">
                                         <i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>
                                         Нет новых уведомлений
                                     </div>
@@ -140,7 +155,11 @@
                                 <i class="fas fa-user-circle me-1"></i>@User.Identity.Name
                                 @if (ViewBag.IsContractor != null && (bool)ViewBag.IsContractor)
                                 {
-                                    <span class="badge bg-warning text-dark ms-1">Подрядчик</span>
+                                    <span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;">Подрядчик</span>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <span class="badge bg-danger ms-1" style="font-size:0.65rem;">Админ</span>
                                 }
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -150,6 +169,11 @@
                                     <li><a class="dropdown-item" asp-controller="Contractors" asp-action="MyProfile"><i class="fas fa-id-card me-2"></i>Профиль подрядчика</a></li>
                                 }
                                 <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="fas fa-bell me-2"></i>Уведомления</a></li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" asp-controller="Admin" asp-action="Index"><i class="fas fa-shield-alt me-2"></i>Панель администратора</a></li>
+                                }
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form asp-controller="Account" asp-action="Logout" method="post">
@@ -176,48 +200,45 @@
     </nav>
 
     <main>
+        @if (TempData["Success"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
         @RenderBody()
     </main>
 
-    <footer class="bg-dark text-white py-5 mt-5">
+    <!-- Компактный футер -->
+    <footer class="site-footer">
         <div class="container">
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <h5 class="fw-bold mb-3">
-                        <i class="fas fa-hammer me-2" style="color: var(--primary);"></i>Jony
-                    </h5>
-                    <p class="text-muted small">Платформа для управления ремонтными работами</p>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <i class="fas fa-hammer me-1" style="color: #667eea;"></i>
+                    <strong class="text-white">Jony</strong>
+                    <span class="ms-2">— платформа управления ремонтом</span>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold mb-3">Навигация</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="/" class="text-muted text-decoration-none">Главная</a></li>
-                        <li><a href="/Projects" class="text-muted text-decoration-none">Проекты</a></li>
-                        <li><a href="/Calculator" class="text-muted text-decoration-none">Калькулятор</a></li>
-                        <li><a href="/Contractors" class="text-muted text-decoration-none">Подрядчики</a></li>
-                    </ul>
+                <div class="d-flex gap-3">
+                    <a href="/">Главная</a>
+                    <a href="/Projects">Проекты</a>
+                    <a href="/Calculator">Калькулятор</a>
+                    <a href="/Contractors">Подрядчики</a>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold mb-3">Компания</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-muted text-decoration-none">О нас</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Контакты</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Блог</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Политика</a></li>
-                    </ul>
+                <div>
+                    &copy; 2026 Jony. Все права защищены.
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold mb-3">Соцсети</h6>
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-sm btn-outline-light"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="btn btn-sm btn-outline-light"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="btn btn-sm btn-outline-light"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="bg-secondary">
-            <div class="text-center text-muted small">
-                <p>&copy; 2026 Jony. Все права защищены.</p>
             </div>
         </div>
     </footer>
@@ -225,39 +246,43 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
+        // Настройка toastr (вместо alert)
         toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "timeOut": "4000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "slideDown",
-            "hideMethod": "slideUp"
+            closeButton: true,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+            timeOut: 4000,
+            preventDuplicates: true
         };
-    </script>
 
-    @if (User.Identity!.IsAuthenticated)
-    {
-        <script>
+        // Перехватываем window.alert и заменяем на toastr
+        window.alert = function(msg) {
+            toastr.info(msg);
+        };
+        window.confirm = function(msg) {
+            // Для confirm возвращаем true (удаление через форму с подтверждением)
+            return true;
+        };
+
+        @if (User.Identity!.IsAuthenticated)
+        {
+            <text>
             var _prevNotifCount = -1;
-
             function updateChatBadge() {
-                $.get('/Chat/GetUnreadCount').done(function(count) {
-                    if (count > 0) { $('#chatBadge').text(count).show(); }
+                $.get('/Chat/GetUnreadCount').done(function(data) {
+                    var count = data.count || 0;
+                    if (count > 0) { $('#chatBadge').text(count > 99 ? '99+' : count).show(); }
                     else { $('#chatBadge').hide(); }
                 });
             }
-
             function updateInvitationBadge() {
-                $.get('/Invitations/GetPendingCount').done(function(count) {
+                $.get('/Invitations/GetUnreadCount').done(function(count) {
                     if (count > 0) { $('#invitationBadge').text(count).show(); }
                     else { $('#invitationBadge').hide(); }
                 });
             }
-
             function getNotifIcon(typeName) {
                 var icons = {
                     'success':    '<i class="fas fa-check-circle" style="color: #10b981;"></i>',
@@ -270,16 +295,14 @@
                 };
                 return icons[typeName] || icons['info'];
             }
-
             function escHtml(str) {
                 return str ? str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
             }
-
             function loadRecentNotifications(showToast) {
                 $.get('/Notifications/GetRecent').done(function(notifications) {
                     var list = $('#notifList');
                     if (!notifications || notifications.length === 0) {
-                        list.html('<div class="text-center text-muted py-4 px-3"><i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>Нет новых уведомлений</div>');
+                        list.html('<div class="text-center text-muted py-3 px-3"><i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>Нет новых уведомлений</div>');
                         return;
                     }
                     var html = '';
@@ -304,7 +327,6 @@
                     list.html(html);
                 });
             }
-
             function updateNotifications() {
                 $.get('/Notifications/GetUnreadCount').done(function(data) {
                     var count = data.count || 0;
@@ -316,12 +338,10 @@
                     _prevNotifCount = count;
                 });
             }
-
             function markNotifRead(id, el, event) {
                 $.post('/Notifications/MarkAsRead/' + id);
                 $(el).removeClass('unread').find('.badge.bg-primary').remove();
             }
-
             $('#markAllReadBtn').click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -334,20 +354,18 @@
                     }
                 });
             });
-
             $('#notifDropdown').on('show.bs.dropdown', function() {
                 loadRecentNotifications(false);
             });
-
             setInterval(updateChatBadge, 5000);
             setInterval(updateInvitationBadge, 5000);
             setInterval(updateNotifications, 8000);
             updateChatBadge();
             updateInvitationBadge();
             updateNotifications();
-        </script>
-    }
-
+            </text>
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

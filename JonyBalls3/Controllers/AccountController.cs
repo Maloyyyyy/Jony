@@ -137,6 +137,24 @@ namespace JonyBalls3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BecomeContractor(JonyBalls3.Models.ContractorProfileViewModel model, List<IFormFile> portfolioFiles)
         {
+            // Дополнительная валидация
+            if (string.IsNullOrWhiteSpace(model.Specialization))
+                ModelState.AddModelError("Specialization", "Выберите специализацию из списка");
+            if (model.ExperienceYears < 0)
+                ModelState.AddModelError("ExperienceYears", "Опыт не может быть отрицательным");
+            if (model.HourlyRate < 0)
+                ModelState.AddModelError("HourlyRate", "Ставка не может быть отрицательной");
+            if (portfolioFiles != null && portfolioFiles.Any())
+            {
+                foreach (var pf in portfolioFiles)
+                {
+                    if (pf.Length > 5 * 1024 * 1024)
+                    { ModelState.AddModelError("PortfolioFiles", $"Файл {pf.FileName} превышает 5 МБ"); break; }
+                    var ext = Path.GetExtension(pf.FileName).ToLower().TrimStart('.');
+                    if (!new[]{"jpg","jpeg","png","gif","webp"}.Contains(ext))
+                    { ModelState.AddModelError("PortfolioFiles", $"Файл {pf.FileName}: недопустимый формат. Допустимы: JPG, PNG, GIF, WEBP"); break; }
+                }
+            }
             if (ModelState.IsValid)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -154,6 +172,7 @@ namespace JonyBalls3.Controllers
                 var existingProfile = await _contractorService.GetContractorByUserIdAsync(userId);
                 if (existingProfile != null)
                 {
+                    TempData["Success"] = "Вы уже являетесь подрядчиком";
                     return RedirectToAction("MyProfile", "Contractors");
                 }
                 

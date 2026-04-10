@@ -1,35 +1,62 @@
-﻿@model IEnumerable<JonyBalls3.Models.ContractorProfile>
+@model IEnumerable<JonyBalls3.Models.ContractorProfile>
 @{
     ViewData["Title"] = "Каталог подрядчиков";
+    var specializations = new[] {
+        "Отделочные работы", "Сантехника", "Электрика", "Плиточные работы",
+        "Малярные работы", "Штукатурные работы", "Полы", "Потолки",
+        "Дизайн интерьера", "Демонтаж", "Общестроительные работы"
+    };
 }
-
 <div class="container py-4">
-    <h1 class="mb-4">Каталог подрядчиков</h1>
-
-    <!-- Форма поиска -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold mb-0" style="color:#667eea;"><i class="fas fa-users me-2"></i>Каталог подрядчиков</h1>
+        <span class="badge bg-primary fs-6">@Model.Count() подрядчиков</span>
+    </div>
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-body p-4">
             <form method="get" class="row g-3">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">Специализация</label>
-                    <input type="text" name="specialization" class="form-control" value="@ViewBag.Specialization" placeholder="Например: отделка, сантехника...">
+                    <select name="specialization" class="form-select">
+                        <option value="">— Все специализации —</option>
+                        @foreach (var spec in specializations)
+                        {
+                            <option value="@spec" @(ViewBag.Specialization == spec ? "selected" : "")>@spec</option>
+                        }
+                    </select>
                 </div>
-                <div class="col-md-5">
-                    <label class="form-label fw-bold">Макс. ставка (₽/час)</label>
-                    <input type="number" name="maxRate" class="form-control" value="@ViewBag.MaxRate" placeholder="Введите сумму">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Макс. ставка (руб./час)</label>
+                    <input type="number" name="maxRate" class="form-control" value="@ViewBag.MaxRate"
+                           placeholder="Без ограничения" min="0" step="100" />
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Найти</button>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Сортировка</label>
+                    <select name="sortBy" class="form-select">
+                        <option value="rating"    @(ViewBag.SortBy == "rating"    ? "selected" : "")>По рейтингу</option>
+                        <option value="rate_asc"  @(ViewBag.SortBy == "rate_asc"  ? "selected" : "")>Ставка: дешевле</option>
+                        <option value="rate_desc" @(ViewBag.SortBy == "rate_desc" ? "selected" : "")>Ставка: дороже</option>
+                        <option value="exp"       @(ViewBag.SortBy == "exp"       ? "selected" : "")>По опыту</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>Найти
+                    </button>
+                    <a href="/Contractors" class="btn btn-outline-secondary" title="Сбросить">
+                        <i class="fas fa-times"></i>
+                    </a>
                 </div>
             </form>
         </div>
     </div>
-
     @if (!Model.Any())
     {
         <div class="text-center py-5">
-            <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
-            <h3>Подрядчики не найдены</h3>
+            <i class="fas fa-user-slash fa-4x text-muted mb-3 d-block"></i>
+            <h3 class="text-muted">Подрядчики не найдены</h3>
+            <p class="text-muted">Попробуйте изменить параметры поиска</p>
+            <a href="/Contractors" class="btn btn-outline-primary mt-2">Сбросить фильтры</a>
         </div>
     }
     else
@@ -38,21 +65,62 @@
             @foreach (var contractor in Model)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 contractor-card">
                         <div class="card-body p-4">
-                            <h5 class="mb-1">@contractor.CompanyName</h5>
-                            <p class="text-muted small mb-2">@contractor.Specialization</p>
-                            <p class="text-muted small">Опыт: @contractor.ExperienceYears лет</p>
-                            <p class="text-muted small">Ставка: @contractor.HourlyRate.ToString("N0") ₽/час</p>
-                            <p class="text-muted small">Рейтинг: @contractor.Rating.ToString("F1")</p>
-                            <div class="d-flex gap-2">
-                                <a asp-action="Details" asp-route-id="@contractor.Id" class="btn btn-outline-primary flex-grow-1">Профиль</a>
-                                @if (User.Identity.IsAuthenticated)
+                            <div class="d-flex align-items-center mb-3">
+                                @if (!string.IsNullOrEmpty(contractor.AvatarUrl))
                                 {
-                                    <button class="btn btn-primary flex-grow-1 invite-contractor"
+                                    <img src="@contractor.AvatarUrl" class="rounded-circle me-3"
+                                         style="width:50px;height:50px;object-fit:cover;" alt="@contractor.CompanyName" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center"
+                                         style="width:50px;height:50px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:1.2rem;">
+                                        <i class="fas fa-hard-hat"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <h5 class="mb-0 fw-bold">@contractor.CompanyName</h5>
+                                    <span class="badge bg-light text-dark small">@contractor.Specialization</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small"><i class="fas fa-briefcase me-1"></i>@contractor.ExperienceYears лет</span>
+                                <span class="text-muted small"><i class="fas fa-ruble-sign me-1"></i>@contractor.HourlyRate.ToString("N0") ₽/час</span>
+                            </div>
+                            <div class="mb-3">
+                                @{
+                                    int fullStars = (int)Math.Floor((double)contractor.Rating);
+                                    bool halfStar = (contractor.Rating - fullStars) >= 0.5m;
+                                }
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= fullStars) { <i class="fas fa-star text-warning"></i> }
+                                    else if (i == fullStars + 1 && halfStar) { <i class="fas fa-star-half-alt text-warning"></i> }
+                                    else { <i class="far fa-star text-warning"></i> }
+                                }
+                                <span class="ms-1 small text-muted">@contractor.Rating.ToString("F1")</span>
+                            </div>
+                            @{
+                                var statusLabel = contractor.Status switch {
+                                    JonyBalls3.Models.ContractorStatus.Available => ("Доступен", "success"),
+                                    JonyBalls3.Models.ContractorStatus.Busy      => ("Занят", "warning"),
+                                    _                                             => ("Неактивен", "secondary")
+                                };
+                            }
+                            <span class="badge bg-@statusLabel.Item2 mb-3">@statusLabel.Item1</span>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a asp-action="Details" asp-route-id="@contractor.Id"
+                                   class="btn btn-outline-primary flex-grow-1 btn-sm">
+                                    <i class="fas fa-user me-1"></i>Профиль
+                                </a>
+                                @if (User.Identity!.IsAuthenticated)
+                                {
+                                    <button class="btn btn-primary flex-grow-1 btn-sm invite-contractor"
                                             data-id="@contractor.Id"
                                             data-name="@contractor.CompanyName">
-                                        Пригласить
+                                        <i class="fas fa-envelope me-1"></i>Пригласить
                                     </button>
                                 }
                             </div>
@@ -63,93 +131,82 @@
         </div>
     }
 </div>
-
-<!-- Модальное окно приглашения (с антифордж токеном!) -->
 <div class="modal fade" id="inviteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content rounded-4">
             <div class="modal-header">
-                <h5 class="modal-title">Приглашение подрядчика</h5>
+                <h5 class="modal-title"><i class="fas fa-envelope me-2"></i>Приглашение подрядчика</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="inviteForm">
-                    @Html.AntiForgeryToken()   <!-- ← Этого не хватало! -->
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="contractorId" id="inviteContractorId">
                     <div class="mb-3">
-                        <label class="form-label">Подрядчик</label>
+                        <label class="form-label fw-bold">Подрядчик</label>
                         <input type="text" class="form-control" id="inviteContractorName" readonly>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Выберите проект</label>
+                        <label class="form-label fw-bold">Выберите проект <span class="text-danger">*</span></label>
                         <select name="projectId" class="form-select" id="projectSelect" required>
-                            <option value="">-- Загрузка проектов --</option>
+                            <option value="">— Загрузка проектов... —</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Сообщение подрядчику</label>
-                        <textarea name="message" class="form-control" rows="4" placeholder="Опишите, что нужно сделать..." required></textarea>
+                        <label class="form-label fw-bold">Сообщение <span class="text-danger">*</span></label>
+                        <textarea name="message" class="form-control" rows="4"
+                                  placeholder="Опишите, что нужно сделать..." required maxlength="1000"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary" id="sendInviteBtn">Отправить приглашение</button>
+                <button type="button" class="btn btn-primary" id="sendInviteBtn">
+                    <i class="fas fa-paper-plane me-1"></i>Отправить
+                </button>
             </div>
         </div>
     </div>
 </div>
-
 @section Scripts {
     <script>
+        document.querySelectorAll('.contractor-card').forEach(function(card) {
+            card.addEventListener('mouseenter', function() { this.style.transform = 'translateY(-4px)'; this.style.boxShadow = '0 8px 25px rgba(102,126,234,0.2)'; });
+            card.addEventListener('mouseleave', function() { this.style.transform = ''; this.style.boxShadow = ''; });
+        });
         $(document).ready(function() {
-            // Загрузка проектов пользователя
             function loadProjects() {
-                $.get('/Projects/GetUserProjects')
-                    .done(function(projects) {
-                        var select = $('#projectSelect');
-                        select.empty().append('<option value="">-- Выберите проект --</option>');
-                        if (projects && projects.length > 0) {
-                            projects.forEach(function(p) {
-                                select.append('<option value="' + p.id + '">' + p.name + '</option>');
-                            });
-                        } else {
-                            select.append('<option value="" disabled>У вас нет проектов</option>');
-                        }
-                    })
-                    .fail(function() {
-                        $('#projectSelect').empty().append('<option value="">Ошибка загрузки проектов</option>');
-                    });
+                $.get('/Projects/GetUserProjects').done(function(projects) {
+                    var select = $('#projectSelect');
+                    select.empty().append('<option value="">— Выберите проект —</option>');
+                    if (projects && projects.length > 0) {
+                        projects.forEach(function(p) { select.append('<option value="' + p.id + '">' + p.name + '</option>'); });
+                    } else {
+                        select.append('<option value="" disabled>У вас нет проектов</option>');
+                    }
+                }).fail(function() { $('#projectSelect').empty().append('<option value="">Ошибка загрузки</option>'); });
             }
-
-            // Открытие модального окна
             $('.invite-contractor').click(function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                $('#inviteContractorId').val(id);
-                $('#inviteContractorName').val(name);
+                $('#inviteContractorId').val($(this).data('id'));
+                $('#inviteContractorName').val($(this).data('name'));
                 loadProjects();
                 $('#inviteModal').modal('show');
             });
-
-            // Отправка приглашения
             $('#sendInviteBtn').click(function() {
-                var formData = $('#inviteForm').serialize(); // теперь включает токен
+                var projectId = $('#projectSelect').val();
+                var message = $('textarea[name="message"]').val().trim();
+                if (!projectId) { toastr.error('Выберите проект'); return; }
+                if (!message) { toastr.error('Введите сообщение'); return; }
+                var btn = $(this);
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Отправка...');
                 $.ajax({
-                    url: '/Invitations/Create',
-                    method: 'POST',
-                    data: formData,
+                    url: '/Invitations/Create', method: 'POST', data: $('#inviteForm').serialize(),
                     success: function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            $('#inviteModal').modal('hide');
-                        } else {
-                            toastr.error(response.message);
-                        }
+                        if (response.success) { toastr.success(response.message || 'Приглашение отправлено'); $('#inviteModal').modal('hide'); }
+                        else { toastr.error(response.message || 'Ошибка отправки'); }
                     },
-                    error: function(xhr) {
-                        toastr.error('Ошибка при отправке приглашения: ' + xhr.responseText);
-                    }
+                    error: function() { toastr.error('Ошибка сервера'); },
+                    complete: function() { btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i>Отправить'); }
                 });
             });
         });

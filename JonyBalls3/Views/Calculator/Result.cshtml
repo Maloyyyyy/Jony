@@ -84,8 +84,8 @@
                 <a asp-action="Index" class="btn btn-outline-gradient">
                     <i class="fas fa-redo me-2"></i>Новый расчет
                 </a>
-                <a asp-controller="Projects" asp-action="Create" class="btn btn-gradient">
-                    <i class="fas fa-plus-circle me-2"></i>Создать проект на основе расчета
+                <a href="/Projects/Create?fromCalculator=true&calculatedTotal=@Model.TotalCost" class="btn btn-gradient">
+                    <i class="fas fa-plus-circle me-2"></i>Создать проект на основе расчёта
                 </a>
             </div>
         </div>
@@ -95,26 +95,45 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('costChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: [@Html.Raw(string.Join(",", Model.Breakdown.Select(k => $"'{k.Key}'")))],
-                datasets: [{
-                    data: [@string.Join(",", Model.Breakdown.Select(k => k.Value))],
-                    backgroundColor: [
-                        '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
-                        '#fa709a', '#ff6b6b', '#feca57', '#48dbfb'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+        (function() {
+            var canvas = document.getElementById('costChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var labels = [@Html.Raw(string.Join(",", Model.Breakdown.Keys.Select(k => $"'{k}'")))]; 
+            var data = [@Html.Raw(string.Join(",", Model.Breakdown.Values.Select(v => v.ToString(System.Globalization.CultureInfo.InvariantCulture))))];
+            if (labels.length === 0 || data.every(function(d){ return d === 0; })) {
+                canvas.parentElement.innerHTML = '<p class="text-muted text-center">&#1053;&#1077;&#1090; &#1076;&#1072;&#1085;&#1085;&#1099;&#1093; &#1076;&#1083;&#1103; &#1086;&#1090;&#1086;&#1073;&#1088;&#1072;&#1078;&#1077;&#1085;&#1080;&#1103;</p>';
+                return;
             }
-        });
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+                            '#fa709a', '#ff6b6b', '#feca57', '#48dbfb'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toLocaleString('ru-RU') + ' ₽';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })();
     </script>
 }

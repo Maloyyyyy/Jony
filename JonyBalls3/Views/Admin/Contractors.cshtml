@@ -1,0 +1,225 @@
+@model IEnumerable<JonyBalls3.Models.ContractorProfile>
+@{
+    ViewData["Title"] = "Подрядчики — Администратор";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left me-1"></i>Назад
+            </a>
+            <h1 class="fw-bold mb-0" style="color:#43e97b;"><i class="fas fa-hard-hat me-2"></i>Подрядчики</h1>
+        </div>
+        <span class="badge bg-success fs-6">@Model.Count()</span>
+    </div>
+
+    <!-- Поиск -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control" value="@ViewBag.Search"
+                       placeholder="Поиск по компании или специализации..." />
+                <button type="submit" class="btn btn-success px-4"><i class="fas fa-search"></i></button>
+                @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+                {
+                    <a href="/Admin/Contractors" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Компания</th>
+                            <th>Пользователь</th>
+                            <th>Специализация</th>
+                            <th>Опыт</th>
+                            <th>Ставка</th>
+                            <th>Рейтинг</th>
+                            <th>Статус</th>
+                            <th class="pe-4 text-end">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            var statusLabel = c.Status switch {
+                                JonyBalls3.Models.ContractorStatus.Available => ("Доступен", "success"),
+                                JonyBalls3.Models.ContractorStatus.Busy      => ("Занят", "warning"),
+                                _                                             => ("Неактивен", "secondary")
+                            };
+                            <tr>
+                                <td class="ps-4 fw-semibold">@c.CompanyName</td>
+                                <td class="text-muted small">@c.User?.Email</td>
+                                <td>@c.Specialization</td>
+                                <td class="text-muted">@c.ExperienceYears лет</td>
+                                <td class="text-muted">@c.HourlyRate.ToString("N0") ₽/ч</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star me-1"></i>@c.Rating.ToString("F1")
+                                    </span>
+                                </td>
+                                <td><span class="badge bg-@statusLabel.Item2">@statusLabel.Item1</span></td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn btn-outline-primary btn-sm btn-edit-contractor"
+                                                data-id="@c.Id"
+                                                data-company="@c.CompanyName"
+                                                data-spec="@c.Specialization"
+                                                data-desc="@c.Description"
+                                                data-exp="@c.ExperienceYears"
+                                                data-rate="@c.HourlyRate"
+                                                data-rating="@c.Rating"
+                                                data-status="@c.Status"
+                                                title="Редактировать">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <a asp-controller="Contractors" asp-action="Details" asp-route-id="@c.Id"
+                                           class="btn btn-outline-info btn-sm" title="Просмотр профиля">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm btn-delete-contractor"
+                                                data-id="@c.Id"
+                                                data-name="@c.CompanyName"
+                                                title="Удалить">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования подрядчика -->
+<div class="modal fade" id="editContractorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-hard-hat me-2"></i>Редактирование подрядчика</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editContractorForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editContractorId" name="id" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Название компании <span class="text-danger">*</span></label>
+                            <input type="text" id="editCompanyName" name="companyName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Специализация <span class="text-danger">*</span></label>
+                            <select id="editSpecialization" name="specialization" class="form-select" required>
+                                <option value="Отделочные работы">Отделочные работы</option>
+                                <option value="Сантехника">Сантехника</option>
+                                <option value="Электрика">Электрика</option>
+                                <option value="Плиточные работы">Плиточные работы</option>
+                                <option value="Малярные работы">Малярные работы</option>
+                                <option value="Штукатурные работы">Штукатурные работы</option>
+                                <option value="Полы">Полы</option>
+                                <option value="Потолки">Потолки</option>
+                                <option value="Дизайн интерьера">Дизайн интерьера</option>
+                                <option value="Демонтаж">Демонтаж</option>
+                                <option value="Общестроительные работы">Общестроительные работы</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Описание</label>
+                            <textarea id="editDescription" name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Опыт (лет)</label>
+                            <input type="number" id="editExperience" name="experienceYears" class="form-control" min="0" max="50" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ставка (₽/час)</label>
+                            <input type="number" id="editHourlyRate" name="hourlyRate" class="form-control" min="0" step="100" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Рейтинг (0-5)</label>
+                            <input type="number" id="editRating" name="rating" class="form-control" min="0" max="5" step="0.1" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Статус</label>
+                            <select id="editStatus" name="status" class="form-select">
+                                <option value="Available">Доступен</option>
+                                <option value="Busy">Занят</option>
+                                <option value="Inactive">Неактивен</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveContractorBtn">
+                    <i class="fas fa-save me-1"></i>Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var editModal = new bootstrap.Modal(document.getElementById('editContractorModal'));
+
+        document.querySelectorAll('.btn-edit-contractor').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.getElementById('editContractorId').value = this.dataset.id;
+                document.getElementById('editCompanyName').value = this.dataset.company || '';
+                document.getElementById('editSpecialization').value = this.dataset.spec || '';
+                document.getElementById('editDescription').value = this.dataset.desc || '';
+                document.getElementById('editExperience').value = this.dataset.exp || 0;
+                document.getElementById('editHourlyRate').value = this.dataset.rate || 0;
+                document.getElementById('editRating').value = this.dataset.rating || 0;
+                document.getElementById('editStatus').value = this.dataset.status || 'Available';
+                editModal.show();
+            });
+        });
+
+        document.getElementById('saveContractorBtn').addEventListener('click', function() {
+            var form = document.getElementById('editContractorForm');
+            var data = new URLSearchParams(new FormData(form));
+            fetch('/Admin/EditContractor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data.toString()
+            })
+            .then(r => r.json())
+            .then(function(res) {
+                if (res.success) { toastr.success(res.message); editModal.hide(); setTimeout(() => location.reload(), 1000); }
+                else { toastr.error(res.message); }
+            })
+            .catch(() => toastr.error('Ошибка сервера'));
+        });
+
+        document.querySelectorAll('.btn-delete-contractor').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                var name = this.dataset.name;
+                if (!confirm('Удалить подрядчика "' + name + '"? Это действие необратимо!')) return;
+                var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                fetch('/Admin/DeleteContractor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'id=' + encodeURIComponent(id) + '&__RequestVerificationToken=' + encodeURIComponent(token)
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) { toastr.success(res.message); setTimeout(() => location.reload(), 1000); }
+                    else { toastr.error(res.message); }
+                });
+            });
+        });
+    </script>
+}

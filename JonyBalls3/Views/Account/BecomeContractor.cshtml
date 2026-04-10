@@ -15,7 +15,7 @@
                 </div>
                 <div class="card-body p-4">
                     <form asp-action="BecomeContractor" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
 
                         <div class="mb-3">
                             <label asp-for="CompanyName" class="form-label fw-bold"></label>
@@ -27,9 +27,25 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Specialization" class="form-label fw-bold"></label>
-                            <input asp-for="Specialization" class="form-control" placeholder="Например: Отделочные работы, сантехника, электрика" />
-                            <span asp-validation-for="Specialization" class="text-danger"></span>
+                            <label asp-for="Specialization" class="form-label fw-bold">Специализация <span class="text-danger">*</span></label>
+                            <select asp-for="Specialization" class="form-select">
+                                <option value="">— Выберите специализацию —</option>
+                                <option value="Отделочные работы">Отделочные работы</option>
+                                <option value="Сантехника">Сантехника</option>
+                                <option value="Электрика">Электрика</option>
+                                <option value="Малярные работы">Малярные работы</option>
+                                <option value="Половые покрытия">Половые покрытия</option>
+                                <option value="Потолочные работы">Потолочные работы</option>
+                                <option value="Плиточные работы">Плиточные работы</option>
+                                <option value="Гипсокартонные работы">Гипсокартонные работы</option>
+                                <option value="Плотницкие работы">Плотницкие работы</option>
+                                <option value="Демонтаж">Демонтаж</option>
+                                <option value="Капитальный ремонт">Капитальный ремонт</option>
+                                <option value="Дизайн интерьера">Дизайн интерьера</option>
+                                <option value="Строительные работы">Строительные работы</option>
+                                <option value="Комплексный ремонт">Комплексный ремонт</option>
+                            </select>
+                            <span asp-validation-for="Specialization" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
@@ -42,14 +58,14 @@
                                 <label asp-for="ExperienceYears" class="form-label fw-bold"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                    <input asp-for="ExperienceYears" class="form-control" />
+                                    <input asp-for="ExperienceYears" class="form-control" type="number" min="0" max="50" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="HourlyRate" class="form-label fw-bold"></label>
                                 <div class="input-group">
                                     <span class="input-group-text">₽/час</span>
-                                    <input asp-for="HourlyRate" class="form-control" />
+                                    <input asp-for="HourlyRate" class="form-control" type="number" min="0" max="10000" step="50" />
                                 </div>
                             </div>
                         </div>
@@ -73,8 +89,8 @@
 
                         <div class="mb-4">
                             <label asp-for="PortfolioFiles" class="form-label fw-bold"></label>
-                            <input asp-for="PortfolioFiles" type="file" multiple accept="image/*" class="form-control" />
-                            <small class="text-muted">Вы можете загрузить несколько фотографий ваших работ</small>
+                            <input asp-for="PortfolioFiles" type="file" multiple accept="image/*" class="form-control" id="portfolioFiles" />
+                            <small class="text-muted">Можно загрузить несколько фото. Макс. 5 МБ на файл. Форматы: JPG, PNG, GIF, WEBP</small>
                         </div>
 
                         <div class="alert alert-info">

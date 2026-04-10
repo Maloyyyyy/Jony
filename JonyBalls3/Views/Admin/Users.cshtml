@@ -1,0 +1,275 @@
+@model IEnumerable<JonyBalls3.Models.User>
+@{
+    ViewData["Title"] = "Пользователи — Администратор";
+    var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>> ?? new();
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left me-1"></i>Назад
+            </a>
+            <h1 class="fw-bold mb-0" style="color:#667eea;"><i class="fas fa-users me-2"></i>Пользователи</h1>
+        </div>
+        <span class="badge bg-primary fs-6">@Model.Count()</span>
+    </div>
+
+    <!-- Поиск -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control" value="@ViewBag.Search"
+                       placeholder="Поиск по email или имени..." />
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-search"></i>
+                </button>
+                @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+                {
+                    <a href="/Admin/Users" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Пользователь</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+                            <th>Роли</th>
+                            <th>Статус</th>
+                            <th>Дата регистрации</th>
+                            <th class="pe-4 text-end">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            var roles = userRoles.ContainsKey(user.Id) ? userRoles[user.Id] : new List<string>();
+                            var isBlocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow;
+                            <tr class="@(isBlocked ? "table-danger" : "")">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width:36px;height:36px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:0.85rem;flex-shrink:0;">
+                                            @(user.FirstName?.Length > 0 ? user.FirstName[0].ToString().ToUpper() : "?")
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">@user.FirstName @user.LastName</div>
+                                            <small class="text-muted">ID: @user.Id[..8]...</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted">@user.Email</td>
+                                <td class="text-muted">@(user.PhoneNumber ?? "—")</td>
+                                <td>
+                                    @foreach (var role in roles)
+                                    {
+                                        var badgeColor = role == "Admin" ? "danger" : role == "Contractor" ? "success" : "secondary";
+                                        <span class="badge bg-@badgeColor me-1">@role</span>
+                                    }
+                                    @if (!roles.Any()) { <span class="text-muted small">Пользователь</span> }
+                                </td>
+                                <td>
+                                    @if (isBlocked)
+                                    {
+                                        <span class="badge bg-danger">Заблокирован</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Активен</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">@user.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn btn-outline-primary btn-sm btn-edit-user"
+                                                data-id="@user.Id"
+                                                data-firstname="@user.FirstName"
+                                                data-lastname="@user.LastName"
+                                                data-email="@user.Email"
+                                                data-phone="@user.PhoneNumber"
+                                                data-isadmin="@roles.Contains("Admin").ToString().ToLower()"
+                                                data-iscontractor="@roles.Contains("Contractor").ToString().ToLower()"
+                                                data-isblocked="@isBlocked.ToString().ToLower()"
+                                                title="Редактировать">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm btn-toggle-block"
+                                                data-id="@user.Id"
+                                                title="@(isBlocked ? "Разблокировать" : "Заблокировать")">
+                                            <i class="fas fa-@(isBlocked ? "unlock" : "lock")"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm btn-delete-user"
+                                                data-id="@user.Id"
+                                                data-email="@user.Email"
+                                                title="Удалить">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Редактирование пользователя</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editUserId" name="id" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Имя</label>
+                            <input type="text" id="editFirstName" name="firstName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Фамилия</label>
+                            <input type="text" id="editLastName" name="lastName" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                            <input type="email" id="editEmail" name="email" class="form-control" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Телефон</label>
+                            <input type="text" id="editPhone" name="phone" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Роли</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editIsAdmin" name="isAdmin" />
+                                    <label class="form-check-label" for="editIsAdmin">
+                                        <span class="badge bg-danger">Admin</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editIsContractor" name="isContractor" />
+                                    <label class="form-check-label" for="editIsContractor">
+                                        <span class="badge bg-success">Contractor</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editIsBlocked" name="isBlocked" />
+                                    <label class="form-check-label" for="editIsBlocked">
+                                        <span class="badge bg-warning text-dark">Заблокирован</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">
+                    <i class="fas fa-save me-1"></i>Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+
+        // Открытие модального окна редактирования
+        document.querySelectorAll('.btn-edit-user').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.getElementById('editUserId').value = this.dataset.id;
+                document.getElementById('editFirstName').value = this.dataset.firstname || '';
+                document.getElementById('editLastName').value = this.dataset.lastname || '';
+                document.getElementById('editEmail').value = this.dataset.email || '';
+                document.getElementById('editPhone').value = this.dataset.phone || '';
+                document.getElementById('editIsAdmin').checked = this.dataset.isadmin === 'true';
+                document.getElementById('editIsContractor').checked = this.dataset.iscontractor === 'true';
+                document.getElementById('editIsBlocked').checked = this.dataset.isblocked === 'true';
+                editModal.show();
+            });
+        });
+
+        // Сохранение пользователя
+        document.getElementById('saveUserBtn').addEventListener('click', function() {
+            var form = document.getElementById('editUserForm');
+            var data = new URLSearchParams(new FormData(form));
+            // Чекбоксы не включаются если не отмечены
+            if (!document.getElementById('editIsAdmin').checked) data.set('isAdmin', 'false');
+            if (!document.getElementById('editIsContractor').checked) data.set('isContractor', 'false');
+            if (!document.getElementById('editIsBlocked').checked) data.set('isBlocked', 'false');
+
+            fetch('/Admin/EditUser', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data.toString()
+            })
+            .then(r => r.json())
+            .then(function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    editModal.hide();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toastr.error(res.message);
+                }
+            })
+            .catch(() => toastr.error('Ошибка сервера'));
+        });
+
+        // Блокировка/разблокировка
+        document.querySelectorAll('.btn-toggle-block').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                fetch('/Admin/ToggleBlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'id=' + encodeURIComponent(id) + '&__RequestVerificationToken=' + encodeURIComponent(token)
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) { toastr.success(res.message); setTimeout(() => location.reload(), 1000); }
+                    else { toastr.error(res.message); }
+                });
+            });
+        });
+
+        // Удаление пользователя
+        document.querySelectorAll('.btn-delete-user').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                var email = this.dataset.email;
+                if (!confirm('Удалить пользователя ' + email + '? Это действие необратимо!')) return;
+                var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                fetch('/Admin/DeleteUser', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'id=' + encodeURIComponent(id) + '&__RequestVerificationToken=' + encodeURIComponent(token)
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) { toastr.success(res.message); setTimeout(() => location.reload(), 1000); }
+                    else { toastr.error(res.message); }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,228 @@
+@model IEnumerable<JonyBalls3.Models.Project>
+@{
+    ViewData["Title"] = "Проекты — Администратор";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left me-1"></i>Назад
+            </a>
+            <h1 class="fw-bold mb-0" style="color:#4facfe;"><i class="fas fa-project-diagram me-2"></i>Проекты</h1>
+        </div>
+        <span class="badge bg-info fs-6">@Model.Count()</span>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" value="@ViewBag.Search"
+                           placeholder="Поиск по названию проекта..." />
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">— Все статусы —</option>
+                        <option value="Planning"  @(ViewBag.Status == "Planning"  ? "selected" : "")>Планирование</option>
+                        <option value="Active"    @(ViewBag.Status == "Active"    ? "selected" : "")>Активный</option>
+                        <option value="Paused"    @(ViewBag.Status == "Paused"    ? "selected" : "")>Приостановлен</option>
+                        <option value="Completed" @(ViewBag.Status == "Completed" ? "selected" : "")>Завершён</option>
+                        <option value="Cancelled" @(ViewBag.Status == "Cancelled" ? "selected" : "")>Отменён</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-info text-white px-4"><i class="fas fa-search me-1"></i>Найти</button>
+                    <a href="/Admin/Projects" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Проект</th>
+                            <th>Владелец</th>
+                            <th>Подрядчик</th>
+                            <th>Бюджет</th>
+                            <th>Прогресс</th>
+                            <th>Статус</th>
+                            <th>Создан</th>
+                            <th class="pe-4 text-end">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            var statusInfo = p.Status switch {
+                                JonyBalls3.Models.ProjectStatus.Planning  => ("Планирование", "secondary"),
+                                JonyBalls3.Models.ProjectStatus.Active    => ("Активный", "success"),
+                                JonyBalls3.Models.ProjectStatus.Paused    => ("Приостановлен", "warning"),
+                                JonyBalls3.Models.ProjectStatus.Completed => ("Завершён", "primary"),
+                                JonyBalls3.Models.ProjectStatus.Cancelled => ("Отменён", "danger"),
+                                _                                          => (p.Status.ToString(), "secondary")
+                            };
+                            <tr>
+                                <td class="ps-4">
+                                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@p.Id"
+                                       class="fw-semibold text-decoration-none">@p.Name</a>
+                                    <div class="text-muted small">@p.Area м² · @p.RepairType</div>
+                                </td>
+                                <td class="text-muted small">@p.User?.Email</td>
+                                <td class="text-muted small">@(p.Contractor?.CompanyName ?? "—")</td>
+                                <td class="text-muted">@p.Budget.ToString("N0") ₽</td>
+                                <td>
+                                    <div class="progress" style="height:6px;width:80px;">
+                                        <div class="progress-bar bg-success" style="width:@p.Progress%"></div>
+                                    </div>
+                                    <small class="text-muted">@p.Progress%</small>
+                                </td>
+                                <td><span class="badge bg-@statusInfo.Item2">@statusInfo.Item1</span></td>
+                                <td class="text-muted small">@p.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn btn-outline-primary btn-sm btn-edit-project"
+                                                data-id="@p.Id"
+                                                data-name="@p.Name"
+                                                data-desc="@p.Description"
+                                                data-budget="@p.Budget"
+                                                data-status="@p.Status"
+                                                data-start="@p.StartDate?.ToString("yyyy-MM-dd")"
+                                                data-end="@p.EndDate?.ToString("yyyy-MM-dd")"
+                                                title="Редактировать">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <a asp-controller="Projects" asp-action="Details" asp-route-id="@p.Id"
+                                           class="btn btn-outline-info btn-sm" title="Открыть проект">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm btn-delete-project"
+                                                data-id="@p.Id"
+                                                data-name="@p.Name"
+                                                title="Удалить">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования проекта -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактирование проекта</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProjectForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editProjectId" name="id" />
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Название <span class="text-danger">*</span></label>
+                            <input type="text" id="editProjectName" name="name" class="form-control" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Описание</label>
+                            <textarea id="editProjectDesc" name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Бюджет (₽)</label>
+                            <input type="number" id="editProjectBudget" name="budget" class="form-control" min="0" step="1000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Статус</label>
+                            <select id="editProjectStatus" name="status" class="form-select">
+                                <option value="Planning">Планирование</option>
+                                <option value="Active">Активный</option>
+                                <option value="Paused">Приостановлен</option>
+                                <option value="Completed">Завершён</option>
+                                <option value="Cancelled">Отменён</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Дата начала</label>
+                            <input type="date" id="editProjectStart" name="startDate" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Дата окончания</label>
+                            <input type="date" id="editProjectEnd" name="endDate" class="form-control" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">
+                    <i class="fas fa-save me-1"></i>Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var editModal = new bootstrap.Modal(document.getElementById('editProjectModal'));
+
+        document.querySelectorAll('.btn-edit-project').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.getElementById('editProjectId').value = this.dataset.id;
+                document.getElementById('editProjectName').value = this.dataset.name || '';
+                document.getElementById('editProjectDesc').value = this.dataset.desc || '';
+                document.getElementById('editProjectBudget').value = this.dataset.budget || 0;
+                document.getElementById('editProjectStatus').value = this.dataset.status || 'Planning';
+                document.getElementById('editProjectStart').value = this.dataset.start || '';
+                document.getElementById('editProjectEnd').value = this.dataset.end || '';
+                editModal.show();
+            });
+        });
+
+        document.getElementById('saveProjectBtn').addEventListener('click', function() {
+            var form = document.getElementById('editProjectForm');
+            var data = new URLSearchParams(new FormData(form));
+            fetch('/Admin/EditProject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data.toString()
+            })
+            .then(r => r.json())
+            .then(function(res) {
+                if (res.success) { toastr.success(res.message); editModal.hide(); setTimeout(() => location.reload(), 1000); }
+                else { toastr.error(res.message); }
+            })
+            .catch(() => toastr.error('Ошибка сервера'));
+        });
+
+        document.querySelectorAll('.btn-delete-project').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                var name = this.dataset.name;
+                if (!confirm('Удалить проект "' + name + '"? Все этапы и расходы будут удалены!')) return;
+                var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                fetch('/Admin/DeleteProject', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'id=' + encodeURIComponent(id) + '&__RequestVerificationToken=' + encodeURIComponent(token)
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) { toastr.success(res.message); setTimeout(() => location.reload(), 1000); }
+                    else { toastr.error(res.message); }
+                });
+            });
+        });
+    </script>
+}

@@ -64,8 +64,31 @@ using (var scope = app.Services.CreateScope())
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
-        {
             await roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    // Создание администратора по умолчанию если нет ни одного
+    var userManager2 = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var adminEmail = "admin@jony.ru";
+    var existingAdmin = await userManager2.FindByEmailAsync(adminEmail);
+    if (existingAdmin == null)
+    {
+        var adminUser = new User
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            NormalizedEmail = adminEmail.ToUpperInvariant(),
+            NormalizedUserName = adminEmail.ToUpperInvariant(),
+            FirstName = "Администратор",
+            LastName = "Системный",
+            EmailConfirmed = true,
+            CreatedAt = DateTime.Now
+        };
+        var createResult = await userManager2.CreateAsync(adminUser, "Admin123!");
+        if (createResult.Succeeded)
+        {
+            await userManager2.AddToRoleAsync(adminUser, "Admin");
+            Console.WriteLine("✅ Создан администратор: admin@jony.ru / Admin123!");
         }
     }
 }

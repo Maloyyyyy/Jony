@@ -1,0 +1,135 @@
+@model JonyBalls3.Controllers.AdminStatsViewModel
+@{
+    ViewData["Title"] = "Статистика — Администратор";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left me-1"></i>Назад
+            </a>
+            <h1 class="fw-bold mb-0" style="color:#fa709a;"><i class="fas fa-chart-bar me-2"></i>Статистика платформы</h1>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Проекты по статусам -->
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-chart-pie me-2" style="color:#667eea;"></i>Проекты по статусам</h5>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="projectsChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Расходы по категориям -->
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-chart-doughnut me-2" style="color:#43e97b;"></i>Расходы по категориям</h5>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="expensesChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Топ подрядчиков -->
+        <div class="col-12">
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-trophy me-2" style="color:#fee140;"></i>Топ подрядчиков по рейтингу</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Компания</th>
+                                    <th>Специализация</th>
+                                    <th>Опыт</th>
+                                    <th>Ставка</th>
+                                    <th>Рейтинг</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int rank = 1;}
+                                @foreach (var c in Model.TopContractors)
+                                {
+                                    var medal = rank switch { 1 => "🥇", 2 => "🥈", 3 => "🥉", _ => rank.ToString() };
+                                    var statusLabel = c.Status switch {
+                                        JonyBalls3.Models.ContractorStatus.Available => ("Доступен", "success"),
+                                        JonyBalls3.Models.ContractorStatus.Busy      => ("Занят", "warning"),
+                                        _                                             => ("Неактивен", "secondary")
+                                    };
+                                    <tr>
+                                        <td class="fw-bold">@medal</td>
+                                        <td class="fw-semibold">@c.CompanyName</td>
+                                        <td>@c.Specialization</td>
+                                        <td>@c.ExperienceYears лет</td>
+                                        <td>@c.HourlyRate.ToString("N0") ₽/ч</td>
+                                        <td>
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= (int)c.Rating) { <i class="fas fa-star text-warning"></i> }
+                                                else { <i class="far fa-star text-warning"></i> }
+                                            }
+                                            <span class="ms-1 small">@c.Rating.ToString("F1")</span>
+                                        </td>
+                                        <td><span class="badge bg-@statusLabel.Item2">@statusLabel.Item1</span></td>
+                                    </tr>
+                                    rank++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Проекты по статусам
+        var projectsCtx = document.getElementById('projectsChart').getContext('2d');
+        new Chart(projectsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.ProjectsByStatus.Keys.Select(k => $"'{k}'")))],
+                datasets: [{
+                    data: [@string.Join(",", Model.ProjectsByStatus.Values)],
+                    backgroundColor: ['#6c757d','#28a745','#ffc107','#667eea','#dc3545'],
+                    borderWidth: 2, borderColor: '#fff'
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Расходы по категориям
+        var expensesCtx = document.getElementById('expensesChart').getContext('2d');
+        new Chart(expensesCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.ExpensesByCategory.Keys.Select(k => $"'{k}'")))],
+                datasets: [{
+                    label: 'Расходы (₽)',
+                    data: [@string.Join(",", Model.ExpensesByCategory.Values)],
+                    backgroundColor: ['#667eea','#43e97b','#4facfe','#fa709a','#fee140'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+}

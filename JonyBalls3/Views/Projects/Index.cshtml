@@ -53,7 +53,14 @@
                                     item.Status == JonyBalls3.Models.ProjectStatus.Paused ? "fa-pause-circle" : "fa-clock";
                             }
                             <span class="badge @statusColor">
-                                <i class="fas @statusIcon me-1"></i>@item.Status
+                                <i class="fas @statusIcon me-1"></i>@(item.Status switch {
+                                    JonyBalls3.Models.ProjectStatus.Planning  => "Планирование",
+                                    JonyBalls3.Models.ProjectStatus.Active    => "Активный",
+                                    JonyBalls3.Models.ProjectStatus.Paused    => "Приостановлен",
+                                    JonyBalls3.Models.ProjectStatus.Completed => "Завершён",
+                                    JonyBalls3.Models.ProjectStatus.Cancelled => "Отменён",
+                                    _ => item.Status.ToString()
+                                })
                             </span>
                         </div>
 
