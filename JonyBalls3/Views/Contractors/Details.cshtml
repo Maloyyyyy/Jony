@@ -1,8 +1,11 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @model JonyBalls3.Models.ContractorProfile
 
 @{
     ViewData["Title"] = "Профиль подрядчика";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isOwner = Model.UserId == currentUserId;
+    var hasReviewed = User.Identity!.IsAuthenticated && Model.Reviews != null && Model.Reviews.Any(r => r.UserId == currentUserId);
 }
 
 <div class="container py-4">
@@ -12,7 +15,7 @@
                 <div class="card-body text-center p-4">
                     @if (Model.User?.AvatarUrl != null)
                     {
-                        <img src="@Model.User.AvatarUrl" class="rounded-circle mb-3" width="120" height="120">
+                        <img src="@Model.User.AvatarUrl" class="rounded-circle mb-3" width="120" height="120" style="object-fit:cover;">
                     }
                     else
                     {
@@ -72,11 +75,24 @@
                         }
                     </ul>
 
-                    @if (User.Identity.IsAuthenticated && Model.UserId != User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier))
+                    @if (User.Identity!.IsAuthenticated && !isOwner)
                     {
-                        <button class="btn btn-gradient w-100 invite-contractor" data-id="@Model.Id" data-name="@Model.CompanyName">
+                        <button class="btn btn-gradient w-100 mb-2 invite-contractor" data-id="@Model.Id" data-name="@Model.CompanyName">
                             <i class="fas fa-envelope me-2"></i>Пригласить в проект
                         </button>
+
+                        @if (!hasReviewed)
+                        {
+                            <button class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                <i class="fas fa-star me-2"></i>Оставить отзыв
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info py-2 mb-0 small">
+                                <i class="fas fa-check-circle me-1"></i>Вы уже оставили отзыв
+                            </div>
+                        }
                     }
                 </div>
             </div>
@@ -121,8 +137,14 @@
             </div>
 
             <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-white border-0 pt-4 px-4">
+                <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-star me-2" style="color: #667eea;"></i>Отзывы</h5>
+                    @if (User.Identity!.IsAuthenticated && !isOwner && !hasReviewed)
+                    {
+                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                            <i class="fas fa-plus me-1"></i>Написать отзыв
+                        </button>
+                    }
                 </div>
                 <div class="card-body p-4">
                     @if (Model.Reviews == null || !Model.Reviews.Any())
@@ -133,7 +155,7 @@
                     {
                         @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
                         {
-                            <div class="border-bottom pb-3 mb-3">
+                            <div class="border-bottom pb-3 mb-3" id="review-@review.Id">
                                 <div class="d-flex justify-content-between mb-2">
                                     <div>
                                         <h6 class="mb-1">@review.User?.FullName</h6>
@@ -151,7 +173,17 @@
                                             }
                                         </div>
                                     </div>
-                                    <small class="text-muted">@review.CreatedAt.ToString("dd.MM.yyyy")</small>
+                                    <div class="d-flex align-items-start gap-2">
+                                        <small class="text-muted">@review.CreatedAt.ToString("dd.MM.yyyy")</small>
+                                        @if (User.Identity!.IsAuthenticated && review.UserId == currentUserId)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger delete-review-btn" 
+                                                    data-review-id="@review.Id"
+                                                    title="Удалить отзыв">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                                 <p class="mb-0">@review.Comment</p>
                             </div>
@@ -163,6 +195,54 @@
     </div>
 </div>
 
+<!-- Модальное окно для отзыва -->
+@if (User.Identity!.IsAuthenticated && !isOwner && !hasReviewed)
+{
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-star me-2 text-warning"></i>Оставить отзыв</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="contractorId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Оценка</label>
+                            <div class="star-rating d-flex gap-2 mb-2">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input d-none" type="radio" name="rating" id="star@(i)" value="@i" @(i == 5 ? "checked" : "")>
+                                        <label class="form-check-label star-label" for="star@(i)" style="font-size: 2rem; cursor: pointer; color: #ccc;">
+                                            <i class="fas fa-star"></i>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <div id="ratingText" class="text-muted small">Выбрано: 5 — Отлично</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Комментарий</label>
+                            <textarea name="comment" class="form-control" rows="4" placeholder="Расскажите о своём опыте работы с подрядчиком..." required maxlength="1000"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-warning" id="submitReview">
+                        <i class="fas fa-paper-plane me-1"></i>Отправить отзыв
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Модальное окно для приглашения -->
 <div class="modal fade" id="inviteModal" tabindex="-1">
     <div class="modal-dialog">
@@ -173,6 +253,7 @@
             </div>
             <div class="modal-body">
                 <form id="inviteForm">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="contractorId" id="inviteContractorId">
                     <div class="mb-3">
                         <label class="form-label">Подрядчик</label>
@@ -201,7 +282,103 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Загрузка проектов пользователя
+
+            // ===== Звёздный рейтинг =====
+            var ratingLabels = { 1: 'Ужасно', 2: 'Плохо', 3: 'Нормально', 4: 'Хорошо', 5: 'Отлично' };
+            
+            function updateStars(selectedVal) {
+                $('.star-label').each(function() {
+                    var val = parseInt($(this).prev('input').val());
+                    if (val <= selectedVal) {
+                        $(this).css('color', '#ffc107');
+                    } else {
+                        $(this).css('color', '#ccc');
+                    }
+                });
+                $('#ratingText').text('Выбрано: ' + selectedVal + ' — ' + (ratingLabels[selectedVal] || ''));
+            }
+
+            // Инициализация звёзд
+            updateStars(5);
+
+            $('input[name="rating"]').on('change', function() {
+                updateStars(parseInt($(this).val()));
+            });
+
+            $('.star-label').on('mouseover', function() {
+                var val = parseInt($(this).prev('input').val());
+                $('.star-label').each(function() {
+                    var v = parseInt($(this).prev('input').val());
+                    $(this).css('color', v <= val ? '#ffc107' : '#ccc');
+                });
+            });
+
+            $('.star-rating').on('mouseleave', function() {
+                var selected = parseInt($('input[name="rating"]:checked').val()) || 5;
+                updateStars(selected);
+            });
+
+            // ===== Отправка отзыва =====
+            $('#submitReview').click(function() {
+                var form = $('#reviewForm');
+                var comment = form.find('textarea[name="comment"]').val().trim();
+                if (!comment) {
+                    toastr.warning('Пожалуйста, напишите комментарий');
+                    return;
+                }
+
+                var token = form.find('input[name="__RequestVerificationToken"]').val();
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: '/Review/Create',
+                    method: 'POST',
+                    data: formData,
+                    headers: { 'RequestVerificationToken': token },
+                    success: function(data) {
+                        if (data.success) {
+                            toastr.success(data.message);
+                            $('#reviewModal').modal('hide');
+                            setTimeout(function() { location.reload(); }, 1000);
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Ошибка при отправке отзыва');
+                    }
+                });
+            });
+
+            // ===== Удаление отзыва =====
+            $(document).on('click', '.delete-review-btn', function() {
+                var reviewId = $(this).data('review-id');
+                if (!confirm('Удалить ваш отзыв?')) return;
+
+                var token = $('input[name="__RequestVerificationToken"]').first().val();
+
+                $.ajax({
+                    url: '/Review/Delete',
+                    method: 'POST',
+                    data: { id: reviewId, __RequestVerificationToken: token },
+                    success: function(data) {
+                        if (data.success) {
+                            toastr.success('Отзыв удалён');
+                            $('#review-' + reviewId).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                            setTimeout(function() { location.reload(); }, 1500);
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Ошибка при удалении');
+                    }
+                });
+            });
+
+            // ===== Приглашение подрядчика =====
             function loadProjects() {
                 $.get('/Projects/GetUserProjects')
                     .done(function(projects) {
@@ -221,22 +398,17 @@
                     });
             }
 
-            // Открытие модального окна приглашения
             $('.invite-contractor').click(function() {
                 var id = $(this).data('id');
                 var name = $(this).data('name');
-                
                 $('#inviteContractorId').val(id);
                 $('#inviteContractorName').val(name);
                 loadProjects();
-                
                 $('#inviteModal').modal('show');
             });
 
-            // Отправка приглашения
             $('#sendInviteBtn').click(function() {
                 var formData = $('#inviteForm').serialize();
-                
                 $.post('/Invitations/Create', formData)
                     .done(function(response) {
                         if (response.success) {
@@ -259,9 +431,12 @@
         transition: transform 0.3s;
         cursor: pointer;
     }
-    
     .portfolio-card:hover {
         transform: scale(1.05);
         z-index: 10;
+    }
+    .star-label:hover {
+        transform: scale(1.2);
+        transition: transform 0.1s;
     }
 </style>

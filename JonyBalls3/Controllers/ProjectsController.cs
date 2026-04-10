@@ -291,6 +291,11 @@ namespace JonyBalls3.Controllers
                 return NotFound();
 
             var contractors = await _contractorService.SearchContractorsAsync(project.RepairType.ToString(), null);
+            
+            // Скрываем самого себя из списка
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            contractors = contractors.Where(c => c.UserId != userId).ToList();
+            
             ViewBag.ProjectId = id;
             return View(contractors);
         }
@@ -309,6 +314,11 @@ namespace JonyBalls3.Controllers
 
                 if (project.UserId != userId)
                     return Json(new { success = false, message = "Нет доступа" });
+
+                // Запрет приглашать самого себя
+                var contractorProfile = await _contractorService.GetContractorByIdAsync(contractorId);
+                if (contractorProfile != null && contractorProfile.UserId == userId)
+                    return Json(new { success = false, message = "Нельзя пригласить самого себя в проект" });
 
                 // Проверяем нет ли уже приглашения
                 var hasExisting = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);

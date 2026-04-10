@@ -1,7 +1,10 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @model JonyBalls3.Models.ContractorProfile
 @{
     ViewData["Title"] = $"Отзывы о {Model.CompanyName}";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isOwner = Model.UserId == currentUserId;
+    var hasReviewed = User.Identity!.IsAuthenticated && Model.Reviews != null && Model.Reviews.Any(r => r.UserId == currentUserId);
 }
 
 <div class="container py-4">
@@ -34,11 +37,20 @@
                         <p class="text-muted">@Model.ReviewsCount отзывов</p>
                     </div>
 
-                    @if (User.Identity.IsAuthenticated && Model.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    @if (User.Identity!.IsAuthenticated && !isOwner)
                     {
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                            Оставить отзыв
-                        </button>
+                        @if (!hasReviewed)
+                        {
+                            <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                <i class="fas fa-star me-1"></i>Оставить отзыв
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info py-2 mb-0 small">
+                                <i class="fas fa-check-circle me-1"></i>Вы уже оставили отзыв
+                            </div>
+                        }
                     }
                 </div>
             </div>
@@ -58,13 +70,23 @@
                     {
                         @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
                         {
-                            <div class="border-bottom pb-3 mb-3">
+                            <div class="border-bottom pb-3 mb-3" id="review-@review.Id">
                                 <div class="d-flex justify-content-between">
                                     <h6>@review.User?.FullName</h6>
-                                    <div class="text-warning">
-                                        @for (int i = 0; i < review.Rating; i++)
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="text-warning">
+                                            @for (int i = 0; i < review.Rating; i++)
+                                            {
+                                                <i class="fas fa-star"></i>
+                                            }
+                                        </div>
+                                        @if (User.Identity!.IsAuthenticated && review.UserId == currentUserId)
                                         {
-                                            <i class="fas fa-star"></i>
+                                            <button class="btn btn-sm btn-outline-danger delete-review-btn"
+                                                    data-review-id="@review.Id"
+                                                    title="Удалить отзыв">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
                                         }
                                     </div>
                                 </div>
@@ -79,59 +101,136 @@
     </div>
 </div>
 
-<div class="modal fade" id="reviewModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Оставить отзыв</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="reviewForm">
-                    <input type="hidden" name="contractorId" value="@Model.Id" />
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Оценка</label>
-                        <select name="rating" class="form-select" required>
-                            <option value="5">5 - Отлично</option>
-                            <option value="4">4 - Хорошо</option>
-                            <option value="3">3 - Нормально</option>
-                            <option value="2">2 - Плохо</option>
-                            <option value="1">1 - Ужасно</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Комментарий</label>
-                        <textarea name="comment" class="form-control" rows="4" required></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary" id="submitReview">Отправить</button>
+@if (User.Identity!.IsAuthenticated && !isOwner && !hasReviewed)
+{
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Оставить отзыв</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="contractorId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Оценка</label>
+                            <div class="star-rating d-flex gap-2 mb-2">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input d-none" type="radio" name="rating" id="star@(i)" value="@i" @(i == 5 ? "checked" : "")>
+                                        <label class="form-check-label star-label" for="star@(i)" style="font-size: 2rem; cursor: pointer; color: #ccc;">
+                                            <i class="fas fa-star"></i>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <div id="ratingText" class="text-muted small">Выбрано: 5 — Отлично</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Комментарий</label>
+                            <textarea name="comment" class="form-control" rows="4" placeholder="Расскажите о своём опыте..." required maxlength="1000"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="submitReview">
+                        <i class="fas fa-paper-plane me-1"></i>Отправить
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
+@section Scripts {
 <script>
-    document.getElementById('submitReview').addEventListener('click', function() {
-        var form = document.getElementById('reviewForm');
-        var formData = new FormData(form);
-        
-        fetch('/Review/Create', {
-            method: 'POST',
-            body: new URLSearchParams(formData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message);
+    $(document).ready(function() {
+        var ratingLabels = { 1: 'Ужасно', 2: 'Плохо', 3: 'Нормально', 4: 'Хорошо', 5: 'Отлично' };
+
+        function updateStars(selectedVal) {
+            $('.star-label').each(function() {
+                var val = parseInt($(this).prev('input').val());
+                $(this).css('color', val <= selectedVal ? '#ffc107' : '#ccc');
+            });
+            $('#ratingText').text('Выбрано: ' + selectedVal + ' — ' + (ratingLabels[selectedVal] || ''));
+        }
+
+        updateStars(5);
+
+        $('input[name="rating"]').on('change', function() {
+            updateStars(parseInt($(this).val()));
+        });
+
+        $('.star-label').on('mouseover', function() {
+            var val = parseInt($(this).prev('input').val());
+            $('.star-label').each(function() {
+                var v = parseInt($(this).prev('input').val());
+                $(this).css('color', v <= val ? '#ffc107' : '#ccc');
+            });
+        });
+
+        $('.star-rating').on('mouseleave', function() {
+            var selected = parseInt($('input[name="rating"]:checked').val()) || 5;
+            updateStars(selected);
+        });
+
+        $('#submitReview').click(function() {
+            var comment = $('textarea[name="comment"]').val().trim();
+            if (!comment) {
+                toastr.warning('Пожалуйста, напишите комментарий');
+                return;
             }
+
+            $.ajax({
+                url: '/Review/Create',
+                method: 'POST',
+                data: $('#reviewForm').serialize(),
+                success: function(data) {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        $('#reviewModal').modal('hide');
+                        setTimeout(function() { location.reload(); }, 1000);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('Ошибка при отправке отзыва');
+                }
+            });
+        });
+
+        // Удаление отзыва
+        $(document).on('click', '.delete-review-btn', function() {
+            var reviewId = $(this).data('review-id');
+            if (!confirm('Удалить ваш отзыв?')) return;
+
+            var token = $('input[name="__RequestVerificationToken"]').first().val();
+
+            $.ajax({
+                url: '/Review/Delete',
+                method: 'POST',
+                data: { id: reviewId, __RequestVerificationToken: token },
+                success: function(data) {
+                    if (data.success) {
+                        toastr.success('Отзыв удалён');
+                        $('#review-' + reviewId).fadeOut(400, function() { $(this).remove(); });
+                        setTimeout(function() { location.reload(); }, 1500);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('Ошибка при удалении');
+                }
+            });
         });
     });
 </script>
+}

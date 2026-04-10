@@ -82,6 +82,12 @@ namespace JonyBalls3.Controllers
                     return Json(new { success = false, message = "Подрядчик не найден" });
                 }
 
+                // Запрет приглашать самого себя
+                if (contractor.UserId == userId)
+                {
+                    return Json(new { success = false, message = "Нельзя пригласить самого себя в проект" });
+                }
+
                 var exists = await _invitationService.HasExistingInvitationAsync(projectId, contractorId);
                 if (exists)
                 {

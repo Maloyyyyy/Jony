@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using JonyBalls3.Data;
 using JonyBalls3.Models;
 using JonyBalls3.Services;
+using JonyBalls3.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,8 +34,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ContractorStatusFilter>();
+});
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<ContractorStatusFilter>();
 
 // НАШИ СЕРВИСЫ
 builder.Services.AddScoped<ProjectService>();

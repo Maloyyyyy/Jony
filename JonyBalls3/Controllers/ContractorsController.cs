@@ -21,9 +21,17 @@ namespace JonyBalls3.Controllers
         }
 
         // GET: Contractors
-        public async Task<IActionResult> Index(string specialization = null, decimal? maxRate = null)
+        public async Task<IActionResult> Index(string? specialization = null, decimal? maxRate = null)
         {
             var contractors = await _contractorService.SearchContractorsAsync(specialization, maxRate);
+            
+            // Скрываем текущего пользователя из каталога
+            if (User.Identity!.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                contractors = contractors.Where(c => c.UserId != userId).ToList();
+            }
+            
             ViewBag.Specialization = specialization;
             ViewBag.MaxRate = maxRate;
             return View(contractors);
