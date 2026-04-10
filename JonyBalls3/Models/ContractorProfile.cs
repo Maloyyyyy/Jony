@@ -46,6 +46,8 @@ namespace JonyBalls3.Models
         
         public bool IsVerified { get; set; } = false;
         
+        public string? AvatarUrl { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         // Навигационные свойства

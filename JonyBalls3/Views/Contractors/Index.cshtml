@@ -92,7 +92,7 @@
                             <div class="mb-3">
                                 @{
                                     int fullStars = (int)Math.Floor((double)contractor.Rating);
-                                    bool halfStar = (contractor.Rating - fullStars) >= 0.5m;
+                                    bool halfStar = (contractor.Rating - fullStars) >= 0.5;
                                 }
                                 @for (int i = 1; i <= 5; i++)
                                 {

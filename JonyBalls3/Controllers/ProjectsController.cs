@@ -298,21 +298,21 @@ namespace JonyBalls3.Controllers
             {
                 ProjectId = model.ProjectId,
                 StageId = model.StageId,
-                Title = model.Title ?? "Расход",
+                Name = model.Name ?? "Расход",
                 Amount = model.Amount,
-                Category = model.Category,
-                Date = DateTime.Now,
+                Category = Enum.TryParse<ExpenseCategory>(model.Category, out var cat) ? cat : ExpenseCategory.Other,
+                Date = model.Date,
                 Description = model.Description ?? ""
             };
 
-            if (model.ReceiptFile != null && model.ReceiptFile.Length > 0)
+            if (model.ReceiptImage != null && model.ReceiptImage.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ReceiptImage.FileName);
                 var filePath = Path.Combine(_env.WebRootPath, "uploads/receipts", fileName);
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await model.ReceiptFile.CopyToAsync(stream);
+                    await model.ReceiptImage.CopyToAsync(stream);
                 }
                 expense.ReceiptUrl = "/uploads/receipts/" + fileName;
             }

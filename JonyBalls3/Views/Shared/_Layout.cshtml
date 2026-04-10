@@ -200,7 +200,9 @@
                 return icons[typeName] || icons['info'];
             }
             function escHtml(str) {
-                return str ? str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+                if (!str) return '';
+                var gt = String.fromCharCode(62), lt = String.fromCharCode(60), amp = '&';
+                return str.split(amp).join(amp + 'amp;').split(lt).join(amp + 'lt;').split(gt).join(amp + 'gt;');
             }
             function loadRecentNotifications(showToast) {
                 $.get('/Notifications/GetRecent').done(function(notifications) {

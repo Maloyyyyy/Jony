@@ -231,11 +231,11 @@ namespace JonyBalls3.Controllers
             contractor.Description    = description ?? "";
             contractor.ExperienceYears = Math.Max(0, experienceYears);
             contractor.HourlyRate     = Math.Max(0, hourlyRate);
-            contractor.Rating         = rating;
+            contractor.Rating         = (double)rating;
             contractor.Status         = status switch {
                 "Available" or "Свободен"  => ContractorStatus.Available,
                 "Busy"      or "Занят"      => ContractorStatus.Busy,
-                _                                => ContractorStatus.Inactive
+                _                                => ContractorStatus.Unavailable
             };
 
             await _context.SaveChangesAsync();
