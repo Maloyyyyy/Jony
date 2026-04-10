@@ -25,6 +25,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -51,45 +54,101 @@ builder.Services.AddScoped<InvitationService>();
 
 var app = builder.Build();
 
-// Создание базы данных и таблиц при запуске
+// Инициализация базы данных
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
-    
-    // Создание ролей
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roles = { "User", "Contractor", "Admin" };
-    
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
-    }
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var logger = services.GetRequiredService<ILogger<Program>>();
 
-    // Создание администратора по умолчанию если нет ни одного
-    var userManager2 = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-    var adminEmail = "admin@jony.ru";
-    var existingAdmin = await userManager2.FindByEmailAsync(adminEmail);
-    if (existingAdmin == null)
+    try 
     {
-        var adminUser = new User
+        // 1. Создаем БД если нет
+        context.Database.EnsureCreated();
+
+        // 2. Проверяем и добавляем колонки в AspNetUsers (User)
+        string[] userColumns = { "Bio", "Location", "BirthDate", "Phone", "AvatarUrl", "FirstName", "LastName", "CreatedAt" };
+        foreach (var col in userColumns)
         {
-            UserName = adminEmail,
-            Email = adminEmail,
-            NormalizedEmail = adminEmail.ToUpperInvariant(),
-            NormalizedUserName = adminEmail.ToUpperInvariant(),
-            FirstName = "Администратор",
-            LastName = "Системный",
-            EmailConfirmed = true,
-            CreatedAt = DateTime.Now
-        };
-        var createResult = await userManager2.CreateAsync(adminUser, "Admin123!");
-        if (createResult.Succeeded)
-        {
-            await userManager2.AddToRoleAsync(adminUser, "Admin");
-            Console.WriteLine("✅ Создан администратор: admin@jony.ru / Admin123!");
+            try { context.Database.ExecuteSqlRaw($"SELECT {col} FROM AspNetUsers LIMIT 1"); }
+            catch {
+                try { 
+                    string type = col == "BirthDate" || col == "CreatedAt" ? "TEXT" : "TEXT DEFAULT ''";
+                    context.Database.ExecuteSqlRaw($"ALTER TABLE AspNetUsers ADD COLUMN {col} {type}"); 
+                    logger.LogInformation($"Column {col} added to AspNetUsers");
+                } catch { }
+            }
         }
+
+        // 3. Проверяем и добавляем колонки в ContractorProfiles
+        try { context.Database.ExecuteSqlRaw("SELECT AvatarUrl FROM ContractorProfiles LIMIT 1"); }
+        catch {
+            try { 
+                context.Database.ExecuteSqlRaw("ALTER TABLE ContractorProfiles ADD COLUMN AvatarUrl TEXT"); 
+                logger.LogInformation("Column AvatarUrl added to ContractorProfiles");
+            } catch { }
+        }
+
+        // 4. Создаем таблицу Notifications если нет (ручная миграция)
+        try { context.Database.ExecuteSqlRaw("SELECT Id FROM Notifications LIMIT 1"); }
+        catch {
+            try {
+                context.Database.ExecuteSqlRaw(@"
+                    CREATE TABLE IF NOT EXISTS Notifications (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        UserId TEXT NOT NULL,
+                        Title TEXT NOT NULL DEFAULT '',
+                        Message TEXT NOT NULL DEFAULT '',
+                        Type INTEGER NOT NULL DEFAULT 1,
+                        Link TEXT,
+                        IsRead INTEGER NOT NULL DEFAULT 0,
+                        CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                        ReadAt TEXT,
+                        FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE
+                    );
+                    CREATE INDEX IF NOT EXISTS IX_Notifications_UserId ON Notifications(UserId);
+                    CREATE INDEX IF NOT EXISTS IX_Notifications_IsRead ON Notifications(IsRead);
+                ");
+                logger.LogInformation("Table Notifications created manually");
+            } catch { }
+        }
+
+        // 5. Сид ролей и админа
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
+
+        string[] roles = { "User", "Contractor", "Admin" };
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+        }
+
+        var adminEmail = "admin@jony.ru";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new User
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FirstName = "Администратор",
+                LastName = "Системный",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                AvatarUrl = ""
+            };
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                logger.LogInformation("Default admin created: admin@jony.ru / Admin123!");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred during database initialization");
     }
 }
 
@@ -106,6 +165,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -114,58 +174,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-// Автоматическое обновление базы данных при запуске
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    
-    // Проверяем и добавляем колонки пользователя
-    try
-    {
-        context.Database.ExecuteSqlRaw("SELECT Bio FROM AspNetUsers LIMIT 1");
-    }
-    catch
-    {
-        try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Bio TEXT DEFAULT ''"); } catch { }
-        try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Location TEXT DEFAULT ''"); } catch { }
-        try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN BirthDate TEXT"); } catch { }
-        try { context.Database.ExecuteSqlRaw("ALTER TABLE AspNetUsers ADD COLUMN Phone TEXT DEFAULT ''"); } catch { }
-        Console.WriteLine("✅ Колонки пользователя добавлены!");
-    }
-
-    // Создаём таблицу Notifications если её нет
-    try
-    {
-        context.Database.ExecuteSqlRaw("SELECT Id FROM Notifications LIMIT 1");
-    }
-    catch
-    {
-        try
-        {
-            context.Database.ExecuteSqlRaw(@"
-                CREATE TABLE IF NOT EXISTS Notifications (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    UserId TEXT NOT NULL,
-                    Title TEXT NOT NULL DEFAULT '',
-                    Message TEXT NOT NULL DEFAULT '',
-                    Type INTEGER NOT NULL DEFAULT 1,
-                    Link TEXT,
-                    IsRead INTEGER NOT NULL DEFAULT 0,
-                    CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
-                    ReadAt TEXT,
-                    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE
-                );
-                CREATE INDEX IF NOT EXISTS IX_Notifications_UserId ON Notifications(UserId);
-                CREATE INDEX IF NOT EXISTS IX_Notifications_IsRead ON Notifications(IsRead);
-            ");
-            Console.WriteLine("✅ Таблица Notifications создана!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"⚠️ Ошибка создания таблицы Notifications: {ex.Message}");
-        }
-    }
-}
 
 app.Run();
